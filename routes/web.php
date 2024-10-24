@@ -24,6 +24,10 @@ Route::get('/landing', function() {
     return Inertia::render('Landing');
 });
 
+Route::get('/apply', function() {
+    return Inertia::render('Apply');
+});
+
 Route::get('/dashboard/{any?}', function () {
     return Inertia::render('Dashboard');
 })->where('any', '^(?!api).*$')->middleware(['auth', 'verified'])->name('dashboard');
