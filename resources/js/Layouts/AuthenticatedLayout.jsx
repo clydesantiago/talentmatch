@@ -1,176 +1,286 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import Dropdown from '@/Components/Dropdown';
-import NavLink from '@/Components/NavLink';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import {
+    ActionList,
+    AppProvider,
+    LegacyCard,
+    ContextualSaveBar,
+    FormLayout,
+    Frame,
+    Layout,
+    Loading,
+    Modal,
+    Navigation,
+    SkeletonBodyText,
+    SkeletonDisplayText,
+    SkeletonPage,
+    TextContainer,
+    TextField,
+    Toast,
+    TopBar,
+} from "@shopify/polaris";
+import { Route, Routes, BrowserRouter, useNavigate } from "react-router-dom";
+import NotFound from "@/Pages/NotFound";
+import Projects from "@/Pages/Projects/Index";
+import CreateProject from "@/Pages/Projects/Create";
+import {
+    ArrowLeftIcon,
+    HomeIcon,
+    OrderIcon,
+    ChatIcon,
+} from "@shopify/polaris-icons";
+import { useState, useCallback, useRef } from "react";
 
-export default function AuthenticatedLayout({ header, children }) {
-    const user = usePage().props.auth.user;
+export default function FrameExample() {
+    const navigate = useNavigate();
 
-    const [showingNavigationDropdown, setShowingNavigationDropdown] =
-        useState(false);
+    const defaultState = useRef({
+        emailFieldValue: "dharma@jadedpixel.com",
+        nameFieldValue: "Jaded Pixel",
+    });
+    const skipToContentRef = useRef(null);
+
+    const [toastActive, setToastActive] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isDirty, setIsDirty] = useState(false);
+    const [searchActive, setSearchActive] = useState(false);
+    const [searchValue, setSearchValue] = useState("");
+    const [userMenuActive, setUserMenuActive] = useState(false);
+    const [mobileNavigationActive, setMobileNavigationActive] = useState(false);
+    const [modalActive, setModalActive] = useState(false);
+    const [nameFieldValue, setNameFieldValue] = useState(
+        defaultState.current.nameFieldValue
+    );
+    const [emailFieldValue, setEmailFieldValue] = useState(
+        defaultState.current.emailFieldValue
+    );
+    const [storeName, setStoreName] = useState(
+        defaultState.current.nameFieldValue
+    );
+    const [supportSubject, setSupportSubject] = useState("");
+    const [supportMessage, setSupportMessage] = useState("");
+
+    const handleSubjectChange = useCallback(
+        (value) => setSupportSubject(value),
+        []
+    );
+    const handleMessageChange = useCallback(
+        (value) => setSupportMessage(value),
+        []
+    );
+    const handleDiscard = useCallback(() => {
+        setEmailFieldValue(defaultState.current.emailFieldValue);
+        setNameFieldValue(defaultState.current.nameFieldValue);
+        setIsDirty(false);
+    }, []);
+    const handleSave = useCallback(() => {
+        defaultState.current.nameFieldValue = nameFieldValue;
+        defaultState.current.emailFieldValue = emailFieldValue;
+
+        setIsDirty(false);
+        setToastActive(true);
+        setStoreName(defaultState.current.nameFieldValue);
+    }, [emailFieldValue, nameFieldValue]);
+
+    const handleSearchResultsDismiss = useCallback(() => {
+        setSearchActive(false);
+        setSearchValue("");
+    }, []);
+    const handleSearchFieldChange = useCallback((value) => {
+        setSearchValue(value);
+        setSearchActive(value.length > 0);
+    }, []);
+    const toggleToastActive = useCallback(
+        () => setToastActive((toastActive) => !toastActive),
+        []
+    );
+    const toggleUserMenuActive = useCallback(
+        () => setUserMenuActive((userMenuActive) => !userMenuActive),
+        []
+    );
+    const toggleMobileNavigationActive = useCallback(
+        () =>
+            setMobileNavigationActive(
+                (mobileNavigationActive) => !mobileNavigationActive
+            ),
+        []
+    );
+    const toggleIsLoading = useCallback(
+        () => setIsLoading((isLoading) => !isLoading),
+        []
+    );
+    const toggleModalActive = useCallback(
+        () => setModalActive((modalActive) => !modalActive),
+        []
+    );
+
+    const toastMarkup = toastActive ? (
+        <Toast onDismiss={toggleToastActive} content="Changes saved" />
+    ) : null;
+
+    const userMenuActions = [
+        {
+            items: [{ content: "Community forums" }],
+        },
+    ];
+
+    const contextualSaveBarMarkup = isDirty ? (
+        <ContextualSaveBar
+            message="Unsaved changes"
+            saveAction={{
+                onAction: handleSave,
+            }}
+            discardAction={{
+                onAction: handleDiscard,
+            }}
+        />
+    ) : null;
+
+    const userMenuMarkup = (
+        <TopBar.UserMenu
+            actions={userMenuActions}
+            name="Dharma"
+            detail={storeName}
+            initials="D"
+            open={userMenuActive}
+            onToggle={toggleUserMenuActive}
+        />
+    );
+
+    const searchResultsMarkup = (
+        <ActionList
+            items={[
+                { content: "Shopify help center" },
+                { content: "Community forums" },
+            ]}
+        />
+    );
+
+    const searchFieldMarkup = (
+        <TopBar.SearchField
+            onChange={handleSearchFieldChange}
+            value={searchValue}
+            placeholder="Search"
+        />
+    );
+
+    const topBarMarkup = (
+        <TopBar
+            showNavigationToggle
+            userMenu={userMenuMarkup}
+            searchResultsVisible={searchActive}
+            searchField={searchFieldMarkup}
+            searchResults={searchResultsMarkup}
+            onSearchResultsDismiss={handleSearchResultsDismiss}
+            onNavigationToggle={toggleMobileNavigationActive}
+        />
+    );
+
+    const navigationMarkup = (
+        <Navigation location="/">
+            <Navigation.Section
+                items={[
+                    {
+                        label: "Dashboard",
+                        icon: HomeIcon,
+                        onClick: () => navigate("/"),
+                    },
+                    {
+                        label: "Projects",
+                        icon: OrderIcon,
+                        onClick: () => navigate("/projects"),
+                    },
+                ]}
+                action={{
+                    icon: ChatIcon,
+                    accessibilityLabel: "Contact support",
+                    onClick: toggleModalActive,
+                }}
+            />
+        </Navigation>
+    );
+
+    const loadingMarkup = isLoading ? <Loading /> : null;
+
+    const actualPageMarkup = (
+        <Routes>
+            <Route exact path="/projects" element={<Projects />} />
+            <Route exact path="*" element={<NotFound />} />
+        </Routes>
+    );
+
+    const loadingPageMarkup = (
+        <SkeletonPage>
+            <Layout>
+                <Layout.Section>
+                    <LegacyCard sectioned>
+                        <TextContainer>
+                            <SkeletonDisplayText size="small" />
+                            <SkeletonBodyText lines={9} />
+                        </TextContainer>
+                    </LegacyCard>
+                </Layout.Section>
+            </Layout>
+        </SkeletonPage>
+    );
+
+    const pageMarkup = isLoading ? loadingPageMarkup : actualPageMarkup;
+
+    const modalMarkup = (
+        <Modal
+            open={modalActive}
+            onClose={toggleModalActive}
+            title="Contact support"
+            primaryAction={{
+                content: "Send",
+                onAction: toggleModalActive,
+            }}
+        >
+            <Modal.Section>
+                <FormLayout>
+                    <TextField
+                        label="Subject"
+                        value={supportSubject}
+                        onChange={handleSubjectChange}
+                        autoComplete="off"
+                    />
+                    <TextField
+                        label="Message"
+                        value={supportMessage}
+                        onChange={handleMessageChange}
+                        autoComplete="off"
+                        multiline
+                    />
+                </FormLayout>
+            </Modal.Section>
+        </Modal>
+    );
+
+    const logo = {
+        width: 86,
+        topBarSource:
+            "https://cdn.shopify.com/s/files/1/2376/3301/files/Shopify_Secondary_Inverted.png",
+        contextualSaveBarSource:
+            "https://cdn.shopify.com/s/files/1/2376/3301/files/Shopify_Secondary_Inverted.png",
+        accessibilityLabel: "Shopify",
+    };
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <nav className="border-b border-gray-100 bg-white">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-16 justify-between">
-                        <div className="flex">
-                            <div className="flex shrink-0 items-center">
-                                <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
-                                </Link>
-                            </div>
-
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink
-                                    href={route('dashboard')}
-                                    active={route().current('dashboard')}
-                                >
-                                    Dashboard
-                                </NavLink>
-                            </div>
-                        </div>
-
-                        <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                            <div className="relative ms-3">
-                                <Dropdown>
-                                    <Dropdown.Trigger>
-                                        <span className="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
-                                            >
-                                                {user.name}
-
-                                                <svg
-                                                    className="-me-0.5 ms-2 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fillRule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clipRule="evenodd"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </Dropdown.Trigger>
-
-                                    <Dropdown.Content>
-                                        <Dropdown.Link
-                                            href={route('profile.edit')}
-                                        >
-                                            Profile
-                                        </Dropdown.Link>
-                                        <Dropdown.Link
-                                            href={route('logout')}
-                                            method="post"
-                                            as="button"
-                                        >
-                                            Log Out
-                                        </Dropdown.Link>
-                                    </Dropdown.Content>
-                                </Dropdown>
-                            </div>
-                        </div>
-
-                        <div className="-me-2 flex items-center sm:hidden">
-                            <button
-                                onClick={() =>
-                                    setShowingNavigationDropdown(
-                                        (previousState) => !previousState,
-                                    )
-                                }
-                                className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none"
-                            >
-                                <svg
-                                    className="h-6 w-6"
-                                    stroke="currentColor"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        className={
-                                            !showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
-                                        }
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                    <path
-                                        className={
-                                            showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
-                                        }
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    className={
-                        (showingNavigationDropdown ? 'block' : 'hidden') +
-                        ' sm:hidden'
-                    }
+        <div style={{ height: "500px" }}>
+            <AppProvider>
+                <Frame
+                    logo={logo}
+                    topBar={topBarMarkup}
+                    navigation={navigationMarkup}
+                    showMobileNavigation={mobileNavigationActive}
+                    onNavigationDismiss={toggleMobileNavigationActive}
+                    skipToContentTarget={skipToContentRef}
                 >
-                    <div className="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink
-                            href={route('dashboard')}
-                            active={route().current('dashboard')}
-                        >
-                            Dashboard
-                        </ResponsiveNavLink>
-                    </div>
-
-                    <div className="border-t border-gray-200 pb-1 pt-4">
-                        <div className="px-4">
-                            <div className="text-base font-medium text-gray-800">
-                                {user.name}
-                            </div>
-                            <div className="text-sm font-medium text-gray-500">
-                                {user.email}
-                            </div>
-                        </div>
-
-                        <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>
-                                Profile
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink
-                                method="post"
-                                href={route('logout')}
-                                as="button"
-                            >
-                                Log Out
-                            </ResponsiveNavLink>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-
-            {header && (
-                <header className="bg-white shadow">
-                    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                        {header}
-                    </div>
-                </header>
-            )}
-
-            <main>{children}</main>
+                    {contextualSaveBarMarkup}
+                    {loadingMarkup}
+                    {pageMarkup}
+                    {toastMarkup}
+                    {modalMarkup}
+                </Frame>
+            </AppProvider>
         </div>
     );
 }
