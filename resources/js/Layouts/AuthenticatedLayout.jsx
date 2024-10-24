@@ -20,8 +20,9 @@ import {
 import { Route, Routes, useNavigate } from "react-router-dom";
 import NotFound from "@/Pages/NotFound";
 import Projects from "@/Pages/Projects/Index";
-import Jobs from "@/Pages/Jobs/Index";
 import UpdateOrCreateProject from "@/Pages/Projects/UpdateOrCreate";
+import Jobs from "@/Pages/Jobs/Index";
+import UpdateOrCreateJob from "@/Pages/Jobs/UpdateOrCreate";
 import {
     BankIcon,
     AppsIcon,
@@ -223,15 +224,17 @@ export default function FrameExample() {
             <Route exact path="/projects" element={<Projects />} />
             <Route
                 exact
-                path="/projects/:id"
+                path="/projects/create"
                 element={<UpdateOrCreateProject />}
             />
             <Route
                 exact
-                path="/projects/create"
+                path="/projects/:id"
                 element={<UpdateOrCreateProject />}
             />
             <Route exact path="/jobs" element={<Jobs />} />
+            <Route exact path="/jobs/create" element={<UpdateOrCreateJob />} />
+            <Route exact path="/jobs/:id" element={<UpdateOrCreateJob />} />
             <Route exact path="*" element={<NotFound />} />
         </Routes>
     );

@@ -9,8 +9,11 @@ import {
 } from "@shopify/polaris";
 import { useState, useCallback, useEffect } from "react";
 import axios from "@/Plugins/axios";
+import { useNavigate } from "react-router-dom";
 
 export default function ResourceListExample() {
+    const navigate = useNavigate();
+
     const [queryValue, setQueryValue] = useState("");
     const [jobs, setJobs] = useState([]);
 
@@ -48,7 +51,13 @@ export default function ResourceListExample() {
     );
 
     return (
-        <Page title="Jobs">
+        <Page
+            title="Jobs"
+            primaryAction={{
+                content: "Create job",
+                onAction: () => navigate("/jobs/create"),
+            }}
+        >
             <LegacyCard>
                 <ResourceList
                     showHeader={false}

@@ -18,8 +18,12 @@ return new class extends Migration
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
             $table->string('title');
-            $table->string('role');
-            $table->string('description')->nullable();
+            $table->float('minimum_salary');
+            $table->float('maximum_salary');
+            $table->integer('years_of_experience');
+            $table->json('skills');
+            $table->text('description')->nullable();
+            $table->string('thumbnail')->nullable();
             $table->timestamps();
         });
     }
