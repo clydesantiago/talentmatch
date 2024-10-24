@@ -34,33 +34,7 @@ export default function Create() {
     const navigate = useNavigate();
 
     const [companies, setCompanies] = useState([]);
-
-    const formik = useFormik({
-        initialValues: {
-            thumbnail: "",
-            name: "",
-            description: "",
-            start_date: new Date().toISOString().split("T")[0],
-            end_date: new Date(new Date().getTime() + 31 * 24 * 60 * 60 * 1000)
-                .toISOString()
-                .split("T")[0],
-            company_id: "",
-            budget: "",
-            generate_job_listings: true,
-            roles: "",
-        },
-        onSubmit: (values) => {
-            axios
-                .post("/projects", values)
-                .then(() => {
-                    navigate("/projects");
-                })
-                .catch((error) => {
-                    formik.setErrors(error.response.data.errors);
-                });
-        },
-    });
-
+    const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([
         {
             role: "system",
@@ -91,6 +65,32 @@ export default function Create() {
         },
     ]);
 
+    const formik = useFormik({
+        initialValues: {
+            thumbnail: "",
+            name: "",
+            description: "",
+            start_date: new Date().toISOString().split("T")[0],
+            end_date: new Date(new Date().getTime() + 31 * 24 * 60 * 60 * 1000)
+                .toISOString()
+                .split("T")[0],
+            company_id: "",
+            budget: "",
+            generate_job_listings: true,
+            roles: "",
+        },
+        onSubmit: (values) => {
+            axios
+                .post("/projects", values)
+                .then(() => {
+                    navigate("/projects");
+                })
+                .catch((error) => {
+                    formik.setErrors(error.response.data.errors);
+                });
+        },
+    });
+
     const filteredMessages = useMemo(() => {
         return messages.filter((message) => message.role !== "system");
     });
@@ -103,6 +103,25 @@ export default function Create() {
             formik.setFieldValue("company_id", firstCompany.id);
         });
     }, [formik.values.company_id]);
+
+    const handleSendMessage = useCallback(() => {
+        if (!message) {
+            return;
+        }
+
+        const newMessage = {
+            role: "user",
+            content: [
+                {
+                    text: message,
+                    type: "text",
+                },
+            ],
+        };
+
+        setMessages((messages) => [...messages, newMessage]);
+        setMessage("");
+    }, [message]);
 
     const handleThumbnailUpload = useCallback(
         (event) => {
@@ -356,16 +375,29 @@ export default function Create() {
                                 </div>
                             ))}
                         </div>
-                        <TextField
-                            labelHidden
-                            placeholder="Type your message here"
-                            multiline
-                            suffix={
-                                <div style={{ marginTop: "5px" }}>
-                                    <Button icon={SendIcon} variant="plain" />
-                                </div>
-                            }
-                        />
+                        <div
+                            onKeyDown={(event) => {
+                                if (event.key === "Enter") {
+                                    handleSendMessage();
+                                }
+                            }}
+                        >
+                            <TextField
+                                labelHidden
+                                placeholder="Type your message here"
+                                suffix={
+                                    <div style={{ marginTop: "5px" }}>
+                                        <Button
+                                            icon={SendIcon}
+                                            variant="plain"
+                                            onClick={handleSendMessage}
+                                        />
+                                    </div>
+                                }
+                                value={message}
+                                onChange={(value) => setMessage(value)}
+                            />
+                        </div>
                     </LegacyCard>
                 </Layout.Section>
             </Layout>
