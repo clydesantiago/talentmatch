@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('job_list', function (Blueprint $table) {
             $table->id();
             $table->foreignId('project_id')
+                ->nullable()
                 ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\JobList;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -58,6 +59,7 @@ class ProjectController extends Controller
             'company_id' => 'required',
             'budget' => 'required',
         ]);
+
         $project->update($validated);
 
         return response()->json($project, 200);
@@ -69,5 +71,16 @@ class ProjectController extends Controller
     public function destroy(Project $project)
     {
         //
+    }
+    
+    /**
+     * jobs
+     *
+     * @param  mixed $id
+     * @return void
+     */
+    public function jobs(Project $project)
+    {
+        return $project->jobLists;
     }
 }

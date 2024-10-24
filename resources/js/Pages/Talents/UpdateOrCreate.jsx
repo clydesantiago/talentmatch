@@ -11,7 +11,7 @@ import {
     Box,
 } from "@shopify/polaris";
 import { useFormik } from "formik";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from "@/Plugins/axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { ImageIcon } from "@shopify/polaris-icons";
@@ -21,6 +21,9 @@ export default function Create() {
     const uploadThumbnailRef = useRef(null);
     const uploadResumeRef = useRef(null);
     const navigate = useNavigate();
+
+    const [uploading, setUploading] = useState(false);
+    const [extracting, setExtracting] = useState(false);
 
     const formik = useFormik({
         initialValues: {
@@ -85,6 +88,31 @@ export default function Create() {
         });
     }, [id]);
 
+    const extractFromResume = useCallback(() => {
+        setExtracting(true);
+
+        axios
+            .post("/talents/extract-from-resume", {
+                resume: formik.values.resume,
+            })
+            .then((response) => {
+                formik.setValues({
+                    ...formik.values,
+                    ...response.data,
+                });
+            })
+            .finally(() => {
+                setExtracting(false);
+            });
+    }, [formik.values.resume]);
+
+    // Monitor resume changes
+    useEffect(() => {
+        if (formik.values.resume) {
+            extractFromResume();
+        }
+    }, [formik.values.resume]);
+
     useEffect(() => {
         if (id) {
             fetchSingleTalent();
@@ -104,6 +132,7 @@ export default function Create() {
                             return;
                         }
 
+                        setUploading(true);
                         const file = event.target.files[0];
 
                         const formData = new FormData();
@@ -121,6 +150,9 @@ export default function Create() {
                                     "resume",
                                     response.data.url
                                 );
+                            })
+                            .finally(() => {
+                                setUploading(false);
                             });
                     }}
                 />
@@ -139,8 +171,11 @@ export default function Create() {
                         </Button>
                     ) : (
                         <Button
+                            loading={uploading || extracting}
                             variant="plain"
-                            onClick={() => uploadThumbnailRef.current.click()}
+                            onClick={() => {
+                                uploadResumeRef.current.click();
+                            }}
                         >
                             Upload resume
                         </Button>

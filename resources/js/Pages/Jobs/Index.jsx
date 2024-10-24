@@ -6,10 +6,15 @@ import {
     ResourceItem,
     Text,
     Page,
+    Badge,
+    LegacyStack,
+    Tag,
+    Thumbnail,
 } from "@shopify/polaris";
 import { useState, useCallback, useEffect } from "react";
 import axios from "@/Plugins/axios";
 import { useNavigate } from "react-router-dom";
+import { ImageIcon } from "@shopify/polaris-icons";
 
 export default function ResourceListExample() {
     const navigate = useNavigate();
@@ -30,7 +35,7 @@ export default function ResourceListExample() {
     }, [handleQueryValueRemove]);
 
     const fetchJobs = useCallback(() => {
-        axios.get("/jobs").then((response) => {
+        axios.get("/job-lists").then((response) => {
             setJobs(response.data);
         });
     }, [setJobs]);
@@ -70,23 +75,31 @@ export default function ResourceListExample() {
     );
 
     function renderItem(item) {
-        const { id, url, title, role, latestOrderUrl } = item;
-        const media = <Avatar customer size="md" name={title} />;
-        const shortcutActions = latestOrderUrl
-            ? [{ content: "View latest order", url: latestOrderUrl }]
-            : undefined;
+        const media = (
+            <Thumbnail source={item.thumbnail || ImageIcon} alt={item.title} />
+        );
+
         return (
             <ResourceItem
-                id={id}
-                url={url}
+                id={item.id}
                 media={media}
-                shortcutActions={shortcutActions}
                 persistActions
+                onClick={() => navigate(`/jobs/${item.id}`)}
             >
-                <Text variant="bodyMd" fontWeight="bold" as="h3">
-                    {title}
-                </Text>
-                <div>{role}</div>
+                <LegacyStack vertical spacing="tight">
+                    <Text variant="bodyMd" fontWeight="bold" as="h3">
+                        {item.title}
+                    </Text>
+                    <LegacyStack spacing="tight">
+                        <Tag>
+                            {item.years_of_experience}+ years of experience
+                        </Tag>
+                        <Tag>
+                            ${item.minimum_salary?.toLocaleString("en-US")} - $
+                            {item.maximum_salary?.toLocaleString("en-US")}
+                        </Tag>
+                    </LegacyStack>
+                </LegacyStack>
             </ResourceItem>
         );
     }

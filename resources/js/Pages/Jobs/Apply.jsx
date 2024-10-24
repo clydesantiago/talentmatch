@@ -29,7 +29,6 @@ export default function Create() {
     const navigate = useNavigate();
 
     const [projects, setProjects] = useState([]);
-    const [assistantLoading, setAssistantLoading] = useState(null);
     const formik = useFormik({
         initialValues: {
             thumbnail: "",
@@ -40,17 +39,17 @@ export default function Create() {
             project_id: "",
             years_of_experience: "",
             generate_job_listings: true,
-            skills_input: "",
-            skills: [],
+            roles_input: "",
+            roles: [],
         },
         onSubmit: (values) => {
             const request = id
-                ? axios.put(`/job-lists/${id}`, values)
-                : axios.post("/job-lists", values);
+                ? axios.put(`/projects/${id}`, values)
+                : axios.post("/projects", values);
 
             request
                 .then(() => {
-                    navigate("/jobs");
+                    navigate("/projects");
                 })
                 .catch((error) => {
                     formik.setErrors(error.response.data.errors);
@@ -89,59 +88,8 @@ export default function Create() {
         [formik]
     );
 
-    const runAssistant = useCallback((assitantId, message) => {
-        return axios.post("/run-assistant", {
-            assistant_id: assitantId,
-            message: message,
-        });
-    }, []);
-
-    const handleGenerateSkills = useCallback(() => {
-        setAssistantLoading("job_skills");
-
-        runAssistant(
-            "asst_4Q1JWG7Rg51Wxlgy28r5JR6U",
-            JSON.stringify({
-                job_title: formik.values.title,
-                job_description: formik.values.description,
-            })
-        )
-            .then((response) => {
-                const skills = [...formik.values.skills];
-                console.log(response.data.result);
-
-                response.data.result.skills.forEach((role) => {
-                    if (!skills.includes(role)) {
-                        skills.push(role);
-                    }
-                });
-
-                formik.setFieldValue("skills", skills);
-            })
-            .finally(() => {
-                setAssistantLoading(null);
-            });
-    }, [formik.values]);
-
-    const handleGenerateDescription = useCallback(() => {
-        setAssistantLoading("description");
-
-        runAssistant(
-            "asst_zrCOGFokVBWYixfme8fPLxWP",
-            JSON.stringify({
-                job_title: formik.values.title,
-            })
-        )
-            .then((response) => {
-                formik.setFieldValue("description", response.data.result);
-            })
-            .finally(() => {
-                setAssistantLoading(null);
-            });
-    }, [formik.values]);
-
-    const fetchSingleJob = useCallback(() => {
-        axios.get(`/job-lists/${id}`).then((response) => {
+    const fetchSingleProject = useCallback(() => {
+        axios.get(`/projects/${id}`).then((response) => {
             const project = response.data;
 
             formik.setValues({ ...project });
@@ -152,56 +100,9 @@ export default function Create() {
         fetchProjects();
 
         if (id) {
-            fetchSingleJob();
+            fetchSingleProject();
         }
     }, []);
-
-    const additionalSettingsMarkup = (
-        <Layout.Section variant="oneThird">
-            <LegacyCard title="Additional information" sectioned>
-                <p>123</p>
-            </LegacyCard>
-        </Layout.Section>
-    );
-
-    const jobListMarkup = (
-        <Layout.Section variant="oneThird">
-            <LegacyCard
-                title="Talents"
-                actions={[
-                    {
-                        content: "Find talents",
-                    },
-                ]}
-            >
-                <ResourceList
-                    items={[]}
-                    renderItem={(item) => {
-                        const { id, url, name, location } = item;
-                        const media = <Avatar customer size="md" name={name} />;
-
-                        return (
-                            <ResourceItem
-                                id={id}
-                                url={url}
-                                media={media}
-                                accessibilityLabel={`View details for ${name}`}
-                            >
-                                <Text
-                                    variant="bodyMd"
-                                    fontWeight="bold"
-                                    as="h3"
-                                >
-                                    {name}
-                                </Text>
-                                <div>{location}</div>
-                            </ResourceItem>
-                        );
-                    }}
-                />
-            </LegacyCard>
-        </Layout.Section>
-    );
 
     return (
         <Page
@@ -321,17 +222,10 @@ export default function Create() {
                             <FormLayout.Group>
                                 <Select
                                     label="Project"
-                                    options={[
-                                        {
-                                            label: "No project",
-                                            value: "",
-                                        },
-                                    ].concat(
-                                        projects.map((project) => ({
-                                            label: project.name,
-                                            value: project.id,
-                                        }))
-                                    )}
+                                    options={projects.map((project) => ({
+                                        label: project.name,
+                                        value: project.id,
+                                    }))}
                                     value={formik.values.project_id}
                                     error={formik.errors.project_id}
                                     onChange={(value) =>
@@ -356,102 +250,9 @@ export default function Create() {
                                     }
                                 />
                             </FormLayout.Group>
-
-                            <LegacyStack vertical spacing="tight">
-                                <div
-                                    onKeyPress={(event) => {
-                                        if (event.key === "Enter") {
-                                            const skills = [
-                                                ...formik.values.skills,
-                                            ];
-
-                                            const newskills =
-                                                formik.values.skills_input.split(
-                                                    ","
-                                                );
-
-                                            newskills.forEach((role) => {
-                                                if (!skills.includes(role)) {
-                                                    skills.push(role.trim());
-                                                }
-                                            });
-
-                                            formik.setFieldValue(
-                                                "skills",
-                                                skills
-                                            );
-
-                                            formik.setFieldValue(
-                                                "skills_input",
-                                                ""
-                                            );
-                                        }
-                                    }}
-                                >
-                                    <TextField
-                                        label="Skills"
-                                        placeholder="PHP, Laravel, JavaScript"
-                                        disabled={
-                                            assistantLoading === "job_skills"
-                                        }
-                                        value={formik.values.skills_input}
-                                        error={formik.errors.skills}
-                                        onChange={(value) =>
-                                            formik.setFieldValue(
-                                                "skills_input",
-                                                value
-                                            )
-                                        }
-                                        suffix={
-                                            !!formik.values.title &&
-                                            !!formik.values.description ? (
-                                                <Button
-                                                    loading={
-                                                        assistantLoading ===
-                                                        "job_skills"
-                                                    }
-                                                    variant="plain"
-                                                    onClick={() =>
-                                                        handleGenerateSkills()
-                                                    }
-                                                >
-                                                    {!assistantLoading && (
-                                                        <Icon
-                                                            source={MagicIcon}
-                                                            tone="magic"
-                                                        />
-                                                    )}
-                                                </Button>
-                                            ) : null
-                                        }
-                                    />
-                                </div>
-                                <LegacyStack alignment="center" spacing="tight">
-                                    {formik.values.skills.map((role, index) => (
-                                        <Tag
-                                            key={index}
-                                            onRemove={() => {
-                                                const skills =
-                                                    formik.values.skills.filter(
-                                                        (r) => r !== role
-                                                    );
-
-                                                formik.setFieldValue(
-                                                    "skills",
-                                                    skills
-                                                );
-                                            }}
-                                        >
-                                            {role}
-                                        </Tag>
-                                    ))}
-                                </LegacyStack>
-                            </LegacyStack>
                         </FormLayout>
                     </LegacyCard>
                 </Layout.Section>
-
-                {id ? jobListMarkup : additionalSettingsMarkup}
             </Layout>
         </Page>
     );

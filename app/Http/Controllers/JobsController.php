@@ -12,7 +12,7 @@ class JobsController extends Controller
      */
     public function index()
     {
-        return JobList::all();
+        return JobList::latest()->get();
     }
 
     /**
@@ -20,14 +20,14 @@ class JobsController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        logger()->info('---- JOB LIST REQUEST -----');
-        logger()->info($request);
-
         $validated = $request->validate([
-            'title' => 'required',
-            'description' => 'nullable',
-            'role' => 'nullable',
+            'title' => 'required|string',
+            'minimum_salary' => 'required|numeric',
+            'maximum_salary' => 'required|numeric',
+            'years_of_experience' => 'required|integer',
+            'skills' => 'required|array',
+            'description' => 'required|string',
+            'thumbnail' => 'nullable|string',
         ]);
 
         $joblist = Joblist::create($validated);
@@ -37,13 +37,9 @@ class JobsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(JobList $jobList)
     {
-
-        return response()->json([
-            'success' => true,
-            'show' => true,
-        ]);
+        return $jobList;
     }
 
     /**
