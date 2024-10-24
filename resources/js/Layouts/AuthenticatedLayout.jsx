@@ -302,9 +302,9 @@ export default function FrameExample() {
     const logo = {
         width: 200,
         topBarSource:
-            "https://admin.assets.codexapps.co/uploads/codexapps/remote-dev-logo-2-1729794062.png",
+            "https://admin.assets.codexapps.co/uploads/codexapps/remote-dev-logo-3-1729794273.png",
         contextualSaveBarSource:
-            "https://admin.assets.codexapps.co/uploads/codexapps/remote-dev-logo-2-1729794062.png",
+            "https://admin.assets.codexapps.co/uploads/codexapps/remote-dev-logo-3-1729794273.png",
         accessibilityLabel: "Shopify",
     };
 
