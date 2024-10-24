@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\JobList>
@@ -17,7 +18,7 @@ class JobListFactory extends Factory
     public function definition(): array
     {
         return [
-            'job_name' => $this->faker->name,
+            'job_title' => $this->faker->name,
             'job_description' => Str::random(20),
             'job_role' => Str::random(20),
         ];

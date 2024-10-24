@@ -34,7 +34,7 @@ class JobsController extends Controller
         logger()->info($request);
 
         $validated = $request->validate([
-            'job_name' => 'required',
+            'job_title' => 'required',
             'job_description' => 'nullable',
             'job_role' => 'nullable',
         ]);
