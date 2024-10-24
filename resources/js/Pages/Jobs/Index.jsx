@@ -35,7 +35,7 @@ export default function ResourceListExample() {
     }, [handleQueryValueRemove]);
 
     const fetchJobs = useCallback(() => {
-        axios.get("/jobs").then((response) => {
+        axios.get("/job-lists").then((response) => {
             setJobs(response.data);
         });
     }, [setJobs]);
