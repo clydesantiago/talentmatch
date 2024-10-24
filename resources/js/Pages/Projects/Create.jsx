@@ -10,14 +10,56 @@ import {
     Text,
     Icon,
     Tag,
-    Label,
+    Checkbox,
     Select,
+    Thumbnail,
+    Box,
 } from "@shopify/polaris";
 import { SendIcon, MagicIcon } from "@shopify/polaris-icons";
-import React, { useMemo, useRef, useState } from "react";
+import { useFormik } from "formik";
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
+import axios from "@/Plugins/axios";
+import { useNavigate } from "react-router-dom";
+import { ImageIcon } from "@shopify/polaris-icons";
 
-export default function Example() {
+export default function Create() {
+    const uploadInputRef = useRef(null);
     const messagesRef = useRef(null);
+    const navigate = useNavigate();
+
+    const [companies, setCompanies] = useState([]);
+
+    const formik = useFormik({
+        initialValues: {
+            name: "",
+            description: "",
+            start_date: new Date().toISOString().split("T")[0],
+            thumbnail: "",
+            end_date: new Date(new Date().getTime() + 31 * 24 * 60 * 60 * 1000)
+                .toISOString()
+                .split("T")[0],
+            company_id: "",
+            budget: "",
+            generate_job_listings: true,
+            roles: "",
+        },
+        onSubmit: (values) => {
+            axios
+                .post("/projects", values)
+                .then(() => {
+                    navigate("/projects");
+                })
+                .catch((error) => {
+                    formik.setErrors(error.response.data.errors);
+                });
+        },
+    });
 
     const [messages, setMessages] = useState([
         {
@@ -53,57 +95,200 @@ export default function Example() {
         return messages.filter((message) => message.role !== "system");
     });
 
+    const fetchCompanies = useCallback(() => {
+        axios.get("/companies").then((response) => {
+            setCompanies(response.data);
+
+            const firstCompany = response.data[0];
+            formik.setFieldValue("company_id", firstCompany.id);
+        });
+    }, [formik.values.company_id]);
+
+    const handleThumbnailUpload = useCallback(
+        (event) => {
+            if (!event.target.files.length) {
+                return;
+            }
+
+            const file = event.target.files[0];
+
+            const formData = new FormData();
+
+            formData.append("file", file);
+
+            axios
+                .post("/upload", formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                })
+                .then((response) => {
+                    formik.setFieldValue("thumbnail", response.data.url);
+                });
+        },
+        [formik]
+    );
+
+    useEffect(() => {
+        fetchCompanies();
+    }, [fetchCompanies]);
+
     return (
-        <Page title="Create a project">
+        <Page
+            backAction={{
+                content: "Back",
+                onAction: () => navigate("/projects"),
+            }}
+            title="Create a project"
+            primaryAction={{
+                content: "Save",
+                onAction: () => formik.handleSubmit(),
+            }}
+        >
             <Layout>
                 <Layout.Section>
                     <LegacyCard sectioned>
                         <FormLayout>
-                            <TextField
-                                label="Project name"
-                                placeholder="Inventory Management"
-                            />
+                            <LegacyStack alignment="center">
+                                <LegacyStack.Item fill>
+                                    <TextField
+                                        label="Project name"
+                                        placeholder="Inventory Management"
+                                        value={formik.values.name}
+                                        error={formik.errors.name}
+                                        onChange={(value) =>
+                                            formik.setFieldValue("name", value)
+                                        }
+                                    />
+                                </LegacyStack.Item>
+                                <Box paddingBlockStart={100}>
+                                    <input
+                                        accept="image/*"
+                                        type="file"
+                                        ref={uploadInputRef}
+                                        style={{ display: "none" }}
+                                        onChange={handleThumbnailUpload}
+                                    />
+                                    <Button
+                                        variant="plain"
+                                        onClick={() => {
+                                            uploadInputRef.current.click();
+                                        }}
+                                    >
+                                        <Thumbnail
+                                            source={
+                                                formik.values.thumbnail ||
+                                                ImageIcon
+                                            }
+                                            alt="Thumbnail"
+                                        />
+                                    </Button>
+                                </Box>
+                            </LegacyStack>
                             <TextField
                                 label="Description"
                                 placeholder="Write a detailed description for your project"
                                 multiline={4}
+                                value={formik.values.description}
+                                error={formik.errors.description}
+                                onChange={(value) =>
+                                    formik.setFieldValue("description", value)
+                                }
                             />
                             <FormLayout.Group>
-                                <TextField label="Start date" type="date" />
-                                <TextField label="End date" type="date" />
+                                <TextField
+                                    label="Start date"
+                                    type="date"
+                                    value={formik.values.start_date}
+                                    error={formik.errors.start_date}
+                                    onChange={(value) =>
+                                        formik.setFieldValue(
+                                            "start_date",
+                                            value
+                                        )
+                                    }
+                                />
+                                <TextField
+                                    label="End date"
+                                    type="date"
+                                    value={formik.values.end_date}
+                                    error={formik.errors.end_date}
+                                    onChange={(value) =>
+                                        formik.setFieldValue("end_date", value)
+                                    }
+                                />
                             </FormLayout.Group>
                             <FormLayout.Group>
                                 <Select
                                     label="Client"
-                                    options={[
-                                        {
-                                            label: "John Doe",
-                                            value: "john-doe",
-                                        },
-                                        {
-                                            label: "Jane Doe",
-                                            value: "jane-doe",
-                                        },
-                                    ]}
+                                    options={companies.map((company) => ({
+                                        label: company.name,
+                                        value: company.id,
+                                    }))}
+                                    value={formik.values.company_id}
+                                    error={formik.errors.company_id}
+                                    onChange={(value) =>
+                                        formik.setFieldValue(
+                                            "company_id",
+                                            value
+                                        )
+                                    }
                                 />
                                 <TextField
                                     label="Budget"
                                     type="number"
                                     prefix="$"
+                                    value={formik.values.budget}
+                                    error={formik.errors.budget}
+                                    onChange={(value) =>
+                                        formik.setFieldValue("budget", value)
+                                    }
                                 />
                             </FormLayout.Group>
-                            <LegacyStack vertical spacing="tight">
-                                <TextField
-                                    label="Roles"
-                                    placeholder="Web developer"
-                                />
-                                <LegacyStack alignment="center" spacing="tight">
-                                    <Tag onRemove={() => {}}>Web developer</Tag>
-                                    <Tag onRemove={() => {}}>
-                                        Project manager
-                                    </Tag>
+
+                            <Checkbox
+                                label="Automatically generate job listings"
+                                checked={formik.values.generate_job_listings}
+                                onChange={(value) =>
+                                    formik.setFieldValue(
+                                        "generate_job_listings",
+                                        value
+                                    )
+                                }
+                            />
+
+                            {formik.values.generate_job_listings && (
+                                <LegacyStack vertical spacing="tight">
+                                    <TextField
+                                        label="Roles"
+                                        placeholder="Web developer, Project manager"
+                                        value={formik.values.roles}
+                                        error={formik.errors.roles}
+                                        onChange={(value) =>
+                                            formik.setFieldValue("roles", value)
+                                        }
+                                        onKeyPress={(event) => {
+                                            if (event.key === "Enter") {
+                                                formik.setFieldValue(
+                                                    "roles",
+                                                    `${formik.values.roles}, `
+                                                );
+                                            }
+                                        }}
+                                    />
+                                    <LegacyStack
+                                        alignment="center"
+                                        spacing="tight"
+                                    >
+                                        <Tag onRemove={() => {}}>
+                                            Web developer
+                                        </Tag>
+                                        <Tag onRemove={() => {}}>
+                                            Project manager
+                                        </Tag>
+                                    </LegacyStack>
                                 </LegacyStack>
-                            </LegacyStack>
+                            )}
                         </FormLayout>
                     </LegacyCard>
                 </Layout.Section>
@@ -131,6 +316,7 @@ export default function Example() {
                         >
                             {filteredMessages.map((message, index) => (
                                 <div
+                                    key={index}
                                     style={{
                                         marginRight:
                                             message.role === "assistant"

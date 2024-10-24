@@ -12,15 +12,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        return Project::all();
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return Project::latest()->get();
     }
 
     /**
@@ -28,7 +20,17 @@ class ProjectController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required',
+            'description' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required',
+            'company_id' => 'required',
+            'budget' => 'required',
+        ]);
+        $project = Project::create($validated);
+
+        return response()->json($project, 201);
     }
 
     /**
@@ -39,13 +41,6 @@ class ProjectController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Project $project)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
