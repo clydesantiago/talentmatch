@@ -32,7 +32,7 @@ export default function ResourceListExample() {
                         key={index}
                         portrait
                         title={talent.name}
-                        description={talent.short_description}
+                        description={talent.summary}
                     >
                         <VideoThumbnail
                             thumbnailUrl={talent.thumbnail}

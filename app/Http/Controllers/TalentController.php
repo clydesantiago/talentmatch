@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Talent;
 use Str;
 use Illuminate\Http\Request;
+use App\Helper\Helper;
+use Spatie\PdfToText\Pdf;
 
 class TalentController extends Controller
 {
@@ -79,5 +81,23 @@ class TalentController extends Controller
     public function destroy(Talent $talent)
     {
         //
+    }
+    
+    /**
+     * Extract text from resume and send to OpenAI API
+     *
+     * @param  mixed $request
+     * @return void
+     */
+    public function extractFromResume(Request $request)
+    {
+        $validated = $request->validate([
+            'resume' => 'required',
+        ]);
+        $resume = public_path($validated['resume']);
+        $extractedText = Pdf::getText($resume);
+        $result = Helper::runAssistant('asst_zjmUA8lBae3IBt0pvc5qFSYa', $extractedText);
+
+        return response()->json($result);
     }
 }
