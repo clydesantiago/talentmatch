@@ -13,8 +13,8 @@ class JobList extends Model
 
     protected $fillable = [
         'project_id',
-        'job_title',
-        'job_description',
-        'job_role',
+        'title',
+        'description',
+        'role',
     ];
 }

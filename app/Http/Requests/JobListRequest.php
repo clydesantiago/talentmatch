@@ -24,9 +24,9 @@ class JobListRequest extends FormRequest
     public function rules()
     {
         return [
-            'job_title' => 'nullable|string',
-            'job_description' => 'nullable|string',
-            'job_role' => 'nullable|array',
+            'title' => 'nullable|string',
+            'description' => 'nullable|string',
+            'role' => 'nullable|array',
         ];
     }
 }

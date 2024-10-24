@@ -17,9 +17,10 @@ import {
     Toast,
     TopBar,
 } from "@shopify/polaris";
-import { Route, Routes, BrowserRouter, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import NotFound from "@/Pages/NotFound";
 import Projects from "@/Pages/Projects/Index";
+import Jobs from "@/Pages/Jobs/Index";
 import UpdateOrCreateProject from "@/Pages/Projects/UpdateOrCreate";
 import {
     BankIcon,
@@ -230,6 +231,7 @@ export default function FrameExample() {
                 path="/projects/create"
                 element={<UpdateOrCreateProject />}
             />
+            <Route exact path="/jobs" element={<Jobs />} />
             <Route exact path="*" element={<NotFound />} />
         </Routes>
     );

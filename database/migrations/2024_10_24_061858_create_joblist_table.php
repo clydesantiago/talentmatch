@@ -17,9 +17,9 @@ return new class extends Migration
                 ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
-            $table->string('job_title');
-            $table->string('job_role');
-            $table->string('job_description')->nullable();
+            $table->string('title');
+            $table->string('role');
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }

@@ -21,9 +21,9 @@ class JobListFactory extends Factory
         $randomID = Project::inRandomOrder()->first()->id;
         return [
             'project_id' => $randomID,
-            'job_title' => $this->faker->name,
-            'job_description' => Str::random(20),
-            'job_role' => Str::random(20),
+            'title' => $this->faker->name,
+            'description' => Str::random(20),
+            'role' => Str::random(20),
         ];
     }
 }
