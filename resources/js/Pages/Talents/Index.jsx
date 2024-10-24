@@ -1,4 +1,10 @@
-import { Page, MediaCard, VideoThumbnail, InlineGrid } from "@shopify/polaris";
+import {
+    Page,
+    MediaCard,
+    VideoThumbnail,
+    InlineGrid,
+    Grid,
+} from "@shopify/polaris";
 import { useNavigate } from "react-router";
 import { EditIcon, ViewIcon } from "@shopify/polaris-icons";
 import { useCallback, useEffect, useState } from "react";
@@ -26,21 +32,27 @@ export default function ResourceListExample() {
                 onAction: () => navigate("create"),
             }}
         >
-            <InlineGrid gap="400" columns={3}>
+            <Grid>
                 {talents.map((talent, index) => (
-                    <MediaCard
-                        key={index}
-                        portrait
-                        title={talent.name}
-                        description={talent.summary}
+                    <Grid.Cell
+                        columnSpan={{ xs: 3, sm: 3, md: 3, lg: 3, xl: 3 }}
                     >
-                        <VideoThumbnail
-                            thumbnailUrl={talent.thumbnail}
-                            onClick={() => navigate(`/talents/${talent.id}`)}
-                        />
-                    </MediaCard>
+                        <MediaCard
+                            key={index}
+                            portrait
+                            title={talent.name}
+                            description={talent.summary}
+                        >
+                            <VideoThumbnail
+                                thumbnailUrl={talent.thumbnail}
+                                onClick={() =>
+                                    navigate(`/talents/${talent.id}`)
+                                }
+                            />
+                        </MediaCard>
+                    </Grid.Cell>
                 ))}
-            </InlineGrid>
+            </Grid>
         </Page>
     );
 }
