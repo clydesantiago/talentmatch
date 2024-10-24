@@ -12,16 +12,7 @@ class JobsController extends Controller
      */
     public function index()
     {
-        //
         return JobList::all();
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -34,9 +25,9 @@ class JobsController extends Controller
         logger()->info($request);
 
         $validated = $request->validate([
-            'job_title' => 'required',
-            'job_description' => 'nullable',
-            'job_role' => 'nullable',
+            'title' => 'required',
+            'description' => 'nullable',
+            'role' => 'nullable',
         ]);
 
         $joblist = Joblist::create($validated);

@@ -17,9 +17,13 @@ return new class extends Migration
                 ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
-            $table->string('job_title');
-            $table->string('job_role');
-            $table->string('job_description')->nullable();
+            $table->string('title');
+            $table->float('minimum_salary');
+            $table->float('maximum_salary');
+            $table->integer('years_of_experience');
+            $table->json('skills');
+            $table->text('description')->nullable();
+            $table->string('thumbnail')->nullable();
             $table->timestamps();
         });
     }

@@ -40,7 +40,7 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        //
+        return $project;
     }
 
 
@@ -49,7 +49,18 @@ class ProjectController extends Controller
      */
     public function update(Request $request, Project $project)
     {
-        //
+        $validated = $request->validate([
+            'thumbnail' => 'nullable',
+            'name' => 'required',
+            'description' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required',
+            'company_id' => 'required',
+            'budget' => 'required',
+        ]);
+        $project->update($validated);
+
+        return response()->json($project, 200);
     }
 
     /**

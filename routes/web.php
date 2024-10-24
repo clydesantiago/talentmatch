@@ -31,7 +31,8 @@ Route::get('/dashboard/{any?}', function () {
 Route::prefix('/api')->group(function () {
     Route::apiResource('/projects', ProjectController::class);
     Route::apiResource('/companies', CompanyController::class);
-    Route::apiResource('/jobs', JobsController::class)->except(['destroy']);
+    Route::apiResource('/jobs', JobsController::class);
+
     Route::post('/upload', UploadController::class);
     Route::post('/openai', OpenAIController::class);
     Route::post('/run-assistant', RunAssistantController::class);

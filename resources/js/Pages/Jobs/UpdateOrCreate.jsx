@@ -9,7 +9,6 @@ import {
     Text,
     Icon,
     Tag,
-    Checkbox,
     Select,
     Thumbnail,
     Box,
@@ -30,19 +29,17 @@ export default function Create() {
     const messagesRef = useRef(null);
     const navigate = useNavigate();
 
-    const [companies, setCompanies] = useState([]);
+    const [projects, setProjects] = useState([]);
     const [assistantLoading, setAssistantLoading] = useState(null);
     const formik = useFormik({
         initialValues: {
             thumbnail: "",
-            name: "",
+            title: "",
             description: "",
-            start_date: new Date().toISOString().split("T")[0],
-            end_date: new Date(new Date().getTime() + 31 * 24 * 60 * 60 * 1000)
-                .toISOString()
-                .split("T")[0],
-            company_id: "",
-            budget: 1000,
+            minimum_salary: "",
+            maximum_salary: "",
+            project_id: "",
+            years_of_experience: "",
             generate_job_listings: true,
             roles_input: "",
             roles: [],
@@ -62,14 +59,14 @@ export default function Create() {
         },
     });
 
-    const fetchCompanies = useCallback(() => {
-        axios.get("/companies").then((response) => {
-            setCompanies(response.data);
+    const fetchProjects = useCallback(() => {
+        axios.get("/projects").then((response) => {
+            setProjects(response.data);
 
-            const firstCompany = response.data[0];
-            formik.setFieldValue("company_id", firstCompany.id);
+            const firstProject = response.data[0];
+            formik.setFieldValue("project_id", firstProject.id);
         });
-    }, [formik.values.company_id]);
+    }, [formik.values.project_id]);
 
     const handleScroll = useCallback(() => {
         setTimeout(() => {
@@ -114,14 +111,14 @@ export default function Create() {
         });
     }, []);
 
-    const handleGenerateJobRoles = useCallback(() => {
+    const handleGenerateSkills = useCallback(() => {
         setAssistantLoading("job_roles");
 
         runAssistant(
-            "asst_zHzzmHIaziZfzsIWNFvHzHBn",
+            "asst_4Q1JWG7Rg51Wxlgy28r5JR6U",
             JSON.stringify({
-                project_title: formik.values.name,
-                project_description: formik.values.description,
+                job_title: formik.values.title,
+                job_description: formik.values.description,
             })
         )
             .then((response) => {
@@ -145,9 +142,9 @@ export default function Create() {
         setAssistantLoading("description");
 
         runAssistant(
-            "asst_mdcfesk2JzH0z6KbiFgcuBVu",
+            "asst_zrCOGFokVBWYixfme8fPLxWP",
             JSON.stringify({
-                project_title: formik.values.name,
+                job_title: formik.values.title,
             })
         )
             .then((response) => {
@@ -167,30 +164,19 @@ export default function Create() {
     }, [id]);
 
     useEffect(() => {
-        fetchCompanies();
+        fetchProjects();
 
         if (id) {
             fetchSingleProject();
         }
-    }, [fetchCompanies]);
+    }, []);
 
     const additionalSettingsMarkup = (
         <Layout.Section variant="oneThird">
-            <LegacyCard title="Additional settings" sectioned>
+            <LegacyCard title="Additional information" sectioned>
                 {!id && (
                     <div>
-                        <Checkbox
-                            label="Automatically generate job listings"
-                            checked={formik.values.generate_job_listings}
-                            onChange={(value) =>
-                                formik.setFieldValue(
-                                    "generate_job_listings",
-                                    value
-                                )
-                            }
-                        />
-
-                        {formik.values.generate_job_listings && (
+                        {
                             <LegacyStack vertical spacing="tight">
                                 <div
                                     onKeyPress={(event) => {
@@ -223,8 +209,8 @@ export default function Create() {
                                     }}
                                 >
                                     <TextField
-                                        label="Job roles"
-                                        placeholder="Web developer, Project manager"
+                                        label="Skills"
+                                        placeholder="PHP, Laravel, JavaScript"
                                         disabled={
                                             assistantLoading === "job_roles"
                                         }
@@ -237,7 +223,7 @@ export default function Create() {
                                             )
                                         }
                                         suffix={
-                                            !!formik.values.name &&
+                                            !!formik.values.title &&
                                             !!formik.values.description ? (
                                                 <Button
                                                     loading={
@@ -246,7 +232,7 @@ export default function Create() {
                                                     }
                                                     variant="plain"
                                                     onClick={() =>
-                                                        handleGenerateJobRoles()
+                                                        handleGenerateSkills()
                                                     }
                                                 >
                                                     {!assistantLoading && (
@@ -281,7 +267,7 @@ export default function Create() {
                                     ))}
                                 </LegacyStack>
                             </LegacyStack>
-                        )}
+                        }
                     </div>
                 )}
             </LegacyCard>
@@ -338,11 +324,11 @@ export default function Create() {
         <Page
             backAction={{
                 content: "Back",
-                onAction: () => navigate("/projects"),
+                onAction: () => navigate("/jobs"),
             }}
-            title={id ? "Project details" : "Create project"}
+            title={id ? "Job details" : "Create job"}
             primaryAction={{
-                content: "Save project",
+                content: "Save",
                 onAction: () => formik.handleSubmit(),
             }}
         >
@@ -353,12 +339,12 @@ export default function Create() {
                             <LegacyStack alignment="center">
                                 <LegacyStack.Item fill>
                                     <TextField
-                                        label="Project name"
-                                        placeholder="Inventory management system"
-                                        value={formik.values.name}
-                                        error={formik.errors.name}
+                                        label="Job title"
+                                        placeholder="Laravel developer"
+                                        value={formik.values.title}
+                                        error={formik.errors.title}
                                         onChange={(value) =>
-                                            formik.setFieldValue("name", value)
+                                            formik.setFieldValue("title", value)
                                         }
                                     />
                                 </LegacyStack.Item>
@@ -388,7 +374,7 @@ export default function Create() {
                             </LegacyStack>
                             <TextField
                                 label="Description"
-                                placeholder="Write a detailed description for your project"
+                                placeholder="Write a detailed description for the job"
                                 multiline={4}
                                 value={formik.values.description}
                                 error={formik.errors.description}
@@ -397,7 +383,7 @@ export default function Create() {
                                     formik.setFieldValue("description", value)
                                 }
                                 suffix={
-                                    !!formik.values.name && (
+                                    !!formik.values.title && (
                                         <div style={{ marginTop: "-35px" }}>
                                             <Button
                                                 loading={
@@ -422,51 +408,61 @@ export default function Create() {
                             />
                             <FormLayout.Group>
                                 <TextField
-                                    label="Start date"
-                                    type="date"
-                                    value={formik.values.start_date}
-                                    error={formik.errors.start_date}
+                                    label="Minimum salary"
+                                    placeholder="1000"
+                                    prefix="$"
+                                    value={formik.values.minimum_salary}
+                                    error={formik.errors.minimum_salary}
                                     onChange={(value) =>
                                         formik.setFieldValue(
-                                            "start_date",
+                                            "minimum_salary",
                                             value
                                         )
                                     }
                                 />
                                 <TextField
-                                    label="End date"
-                                    type="date"
-                                    value={formik.values.end_date}
-                                    error={formik.errors.end_date}
+                                    label="Maximum salary"
+                                    placeholder="2000"
+                                    prefix="$"
+                                    value={formik.values.maximum_salary}
+                                    error={formik.errors.maximum_salary}
                                     onChange={(value) =>
-                                        formik.setFieldValue("end_date", value)
+                                        formik.setFieldValue(
+                                            "maximum_salary",
+                                            value
+                                        )
                                     }
                                 />
                             </FormLayout.Group>
+
                             <FormLayout.Group>
                                 <Select
-                                    label="Company"
-                                    options={companies.map((company) => ({
-                                        label: company.name,
-                                        value: company.id,
+                                    label="Project"
+                                    options={projects.map((project) => ({
+                                        label: project.name,
+                                        value: project.id,
                                     }))}
-                                    value={formik.values.company_id}
-                                    error={formik.errors.company_id}
+                                    value={formik.values.project_id}
+                                    error={formik.errors.project_id}
                                     onChange={(value) =>
                                         formik.setFieldValue(
-                                            "company_id",
-                                            value
+                                            "project_id",
+                                            Number(value)
                                         )
                                     }
                                 />
                                 <TextField
-                                    label="Budget"
+                                    label="Years of experience"
+                                    placeholder="2"
                                     type="number"
-                                    prefix="$"
-                                    value={formik.values.budget}
-                                    error={formik.errors.budget}
+                                    suffix="years"
+                                    value={formik.values.years_of_experience}
+                                    error={formik.errors.years_of_experience}
                                     onChange={(value) =>
-                                        formik.setFieldValue("budget", value)
+                                        formik.setFieldValue(
+                                            "years_of_experience",
+                                            value
+                                        )
                                     }
                                 />
                             </FormLayout.Group>
