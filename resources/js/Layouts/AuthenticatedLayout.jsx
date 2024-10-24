@@ -220,6 +220,7 @@ export default function FrameExample() {
     const actualPageMarkup = (
         <Routes>
             <Route exact path="/projects" element={<Projects />} />
+            <Route exact path="/projects/create" element={<CreateProject />} />
             <Route exact path="*" element={<NotFound />} />
         </Routes>
     );
