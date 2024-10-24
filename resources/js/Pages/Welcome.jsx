@@ -1,5 +1,5 @@
-import "../css/app.css";
-import "./bootstrap";
+import "../../css/app.css";
+import "../bootstrap";
 import { Head, Link } from "@inertiajs/react";
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
