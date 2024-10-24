@@ -22,9 +22,11 @@ import NotFound from "@/Pages/NotFound";
 import Projects from "@/Pages/Projects/Index";
 import CreateProject from "@/Pages/Projects/Create";
 import {
-    ArrowLeftIcon,
+    BankIcon,
+    AppsIcon,
     HomeIcon,
-    OrderIcon,
+    PersonIcon,
+    WorkIcon,
     ChatIcon,
 } from "@shopify/polaris-icons";
 import { useState, useCallback, useRef } from "react";
@@ -185,7 +187,22 @@ export default function FrameExample() {
                     },
                     {
                         label: "Projects",
-                        icon: OrderIcon,
+                        icon: AppsIcon,
+                        onClick: () => navigate("/projects"),
+                    },
+                    {
+                        label: "Jobs",
+                        icon: WorkIcon,
+                        onClick: () => navigate("/jobs"),
+                    },
+                    {
+                        label: "Talents",
+                        icon: PersonIcon,
+                        onClick: () => navigate("/projects"),
+                    },
+                    {
+                        label: "Companies",
+                        icon: BankIcon,
                         onClick: () => navigate("/projects"),
                     },
                 ]}
@@ -256,10 +273,8 @@ export default function FrameExample() {
 
     const logo = {
         width: 86,
-        topBarSource:
-            "https://cdn.shopify.com/s/files/1/2376/3301/files/Shopify_Secondary_Inverted.png",
-        contextualSaveBarSource:
-            "https://cdn.shopify.com/s/files/1/2376/3301/files/Shopify_Secondary_Inverted.png",
+        topBarSource: "https://laravel.com/img/logotype.min.svg",
+        contextualSaveBarSource: "https://laravel.com/img/logotype.min.svg",
         accessibilityLabel: "Shopify",
     };
 

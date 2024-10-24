@@ -1,59 +1,36 @@
-import {
-    LegacyFilters,
-    LegacyCard,
-    ResourceList,
-    Avatar,
-    ResourceItem,
-    Text,
-    Page,
-} from "@shopify/polaris";
-import { useState, useCallback } from "react";
+import { Page, MediaCard, VideoThumbnail, InlineGrid } from "@shopify/polaris";
 import { useNavigate } from "react-router";
 
 export default function ResourceListExample() {
     const navigate = useNavigate();
-    const [queryValue, setQueryValue] = useState(undefined);
 
-    const handleQueryValueChange = useCallback(
-        (value) => setQueryValue(value),
-        []
-    );
-    const handleQueryValueRemove = useCallback(
-        () => setQueryValue(undefined),
-        []
-    );
-
-    const resourceName = {
-        singular: "project",
-        plural: "projects",
-    };
-
-    const items = [
+    const projects = [
         {
-            id: "112",
-            url: "#",
-            name: "Mae Jemison",
-            location: "Decatur, USA",
-            latestOrderUrl: "orders/1456",
+            title: "Rainbow",
+            shortDescription:
+                "A new way to shop for furniture. Const consequat veniam occaecat do.Non ais irure ut Lorem ad id.",
         },
         {
-            id: "212",
-            url: "#",
-            name: "Ellen Ochoa",
-            location: "Los Angeles, USA",
-            latestOrderUrl: "orders/1457",
+            title: "Rainbow",
+            shortDescription:
+                "A new way to shop for furniture. Const consequat veniam occaecat do.Non ais irure ut Lorem ad id.",
+        },
+        {
+            title: "Rainbow",
+            shortDescription:
+                "A new way to shop for furniture. Const consequat veniam occaecat do.Non ais irure ut Lorem ad id.",
+        },
+        {
+            title: "Rainbow",
+            shortDescription:
+                "A new way to shop for furniture. Const consequat veniam occaecat do.Non ais irure ut Lorem ad id.",
+        },
+        {
+            title: "Rainbow",
+            shortDescription:
+                "A new way to shop for furniture. Const consequat veniam occaecat do.Non ais irure ut Lorem ad id.",
         },
     ];
-
-    const filterControl = (
-        <LegacyFilters
-            queryPlaceholder="Search projects"
-            queryValue={queryValue}
-            filters={[]}
-            onQueryChange={handleQueryValueChange}
-            onQueryClear={handleQueryValueRemove}
-        />
-    );
 
     return (
         <Page
@@ -63,46 +40,28 @@ export default function ResourceListExample() {
                 onAction: () => navigate("create"),
             }}
         >
-            <LegacyCard>
-                <ResourceList
-                    showHeader={false}
-                    resourceName={resourceName}
-                    items={items}
-                    renderItem={renderItem}
-                    filterControl={filterControl}
-                />
-            </LegacyCard>
+            <InlineGrid gap="400" columns={3}>
+                {projects.map((project, index) => (
+                    <MediaCard
+                        portrait
+                        title={project.title}
+                        primaryAction={{
+                            content: "Learn more",
+                            onAction: () => {},
+                        }}
+                        description={project.shortDescription}
+                        popoverActions={[
+                            { content: "Dismiss", onAction: () => {} },
+                        ]}
+                    >
+                        <VideoThumbnail
+                            videoLength={80}
+                            thumbnailUrl="https://burst.shopifycdn.com/photos/business-woman-smiling-in-office.jpg?width=1850"
+                            onClick={() => console.log("clicked")}
+                        />
+                    </MediaCard>
+                ))}
+            </InlineGrid>
         </Page>
     );
-
-    function renderItem(item) {
-        const { id, url, name, location, latestOrderUrl } = item;
-        const media = <Avatar customer size="md" name={name} />;
-        const shortcutActions = latestOrderUrl
-            ? [{ content: "View latest order", url: latestOrderUrl }]
-            : undefined;
-        return (
-            <ResourceItem
-                id={id}
-                url={url}
-                media={media}
-                accessibilityLabel={`View details for ${name}`}
-                shortcutActions={shortcutActions}
-                persistActions
-            >
-                <Text variant="bodyMd" fontWeight="bold" as="h3">
-                    {name}
-                </Text>
-                <div>{location}</div>
-            </ResourceItem>
-        );
-    }
-
-    function isEmpty(value) {
-        if (Array.isArray(value)) {
-            return value.length === 0;
-        } else {
-            return value === "" || value == null;
-        }
-    }
 }
