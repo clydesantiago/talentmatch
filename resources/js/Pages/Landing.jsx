@@ -1,8 +1,27 @@
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import "../../css/app.css";
 import "../bootstrap";
+import axios from "axios";
+
 
 export default function Landing() {
+
+  const [jobLists, setJobLists] = useState([]);
+
+  const fetchJobList = useCallback(() => {
+    axios.get("api/jobs").then((response) => {
+      setJobLists(response.data);
+    });
+  }, []);
+
+  useEffect(() => {
+    fetchJobList();
+  }, [fetchJobList]);
+
+  useEffect(() => {
+    console.log('TRACK JOBLIST');
+    console.log(jobLists);
+  }, [jobLists]);
 
   const mockJobList = [
     {job_id: 1, job_title: '', job_description: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna .'},
@@ -13,9 +32,11 @@ export default function Landing() {
   ];
 
 
-  const CardMarkUp = (data) => {
+  const CardMarkUp = (job) => {
     console.log('cardmarkup data');
-    console.log(data);
+    console.log(job);
+
+
     return (
       <div class="m-5">
         <div class="group mx-2 mt-10 grid max-w-screen-md grid-cols-12 space-x-8 overflow-hidden rounded-lg border py-8 text-gray-700 shadow transition hover:shadow-lg sm:mx-auto">
@@ -26,12 +47,12 @@ export default function Landing() {
           </a>
           <div class="col-span-11 flex flex-col pr-8 text-left sm:pl-4">
             <h3 class="text-sm text-gray-600">Invision</h3>
-            <a href="#" class="mb-3 overflow-hidden pr-7 text-lg font-semibold sm:text-xl"> Sr. Frontend Engineer </a>
-            <p class="overflow-hidden pr-7 text-sm">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna .</p>
+            <a href="#" class="mb-3 overflow-hidden pr-7 text-lg font-semibold sm:text-xl"> {job.data.title} </a>
+            <p class="overflow-hidden pr-7 text-sm">{job.data.description}</p>
 
             <div class="mt-5 flex flex-col space-y-3 text-sm font-medium text-gray-500 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-2">
               <div class="">Experience:<span class="ml-2 mr-3 rounded-full bg-green-100 px-2 py-0.5 text-green-900"> 2 Years </span></div>
-              <div class="">Salary:<span class="ml-2 mr-3 rounded-full bg-blue-100 px-2 py-0.5 text-blue-900">180-250k</span></div>
+              <div class="">Salary:<span class="ml-2 mr-3 rounded-full bg-blue-100 px-2 py-0.5 text-blue-900">{`${job.data.minimum_salary} - ${job.data.maximum_salary}`}</span></div>
             </div>
           </div>
         </div>
@@ -107,7 +128,7 @@ export default function Landing() {
     <>
       <NavigationMarkup/>
       <LandingSearch/>
-      {mockJobList.map((data) => (
+      {jobLists && jobLists.map((data) => (
         <CardMarkUp data={data}/>
       ))}
     </>
