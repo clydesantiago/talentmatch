@@ -37,10 +37,10 @@ export default function Create() {
 
     const formik = useFormik({
         initialValues: {
+            thumbnail: "",
             name: "",
             description: "",
             start_date: new Date().toISOString().split("T")[0],
-            thumbnail: "",
             end_date: new Date(new Date().getTime() + 31 * 24 * 60 * 60 * 1000)
                 .toISOString()
                 .split("T")[0],

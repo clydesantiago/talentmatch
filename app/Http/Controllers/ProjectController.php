@@ -21,6 +21,7 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'thumbnail' => 'nullable',
             'name' => 'required',
             'description' => 'required',
             'start_date' => 'required',
