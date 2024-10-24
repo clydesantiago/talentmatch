@@ -32,24 +32,11 @@ export default function ResourceListExample() {
                         key={index}
                         portrait
                         title={project.name}
-                        primaryAction={{
-                            content: "View",
-                            icon: ViewIcon,
-                            onAction: () => navigate(`/projects/${project.id}`),
-                        }}
-                        secondaryAction={{
-                            content: "Edit",
-                            icon: EditIcon,
-                            onAction: () => {},
-                        }}
                         description={project.short_description}
-                        popoverActions={[
-                            { content: "Dismiss", onAction: () => {} },
-                        ]}
                     >
                         <VideoThumbnail
                             thumbnailUrl={project.thumbnail}
-                            onClick={() => console.log("clicked")}
+                            onClick={() => navigate(`/projects/${project.id}`)}
                         />
                     </MediaCard>
                 ))}

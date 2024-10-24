@@ -1,4 +1,5 @@
 import {
+    Badge,
     Button,
     FormLayout,
     Layout,
@@ -13,13 +14,20 @@ import {
     Select,
     Thumbnail,
     Box,
+    Spinner,
     ResourceItem,
     ResourceList,
     Avatar,
 } from "@shopify/polaris";
-import { MagicIcon } from "@shopify/polaris-icons";
+import { SendIcon, MagicIcon } from "@shopify/polaris-icons";
 import { useFormik } from "formik";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import axios from "@/Plugins/axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { ImageIcon } from "@shopify/polaris-icons";
@@ -32,6 +40,28 @@ export default function Create() {
 
     const [companies, setCompanies] = useState([]);
     const [assistantLoading, setAssistantLoading] = useState(null);
+    const [message, setMessage] = useState("");
+    const [messages, setMessages] = useState([
+        {
+            role: "system",
+            content: [
+                {
+                    text: "Act as a helpful product manager by addressing user queries accurately and using any relevant metadata from the form they are filling out to enhance your response.\n\n# Steps\n\n1. **Read the User Query**: Understand the question or informational need expressed by the user.\n2. **Assess Metadata**: Examine the metadata provided to identify any relevant context or information that might aid in formulating a precise answer.\n3. **Formulate a Response**: Integrate insights from the metadata and general product knowledge to craft a comprehensive and helpful answer to the user query.\n4. **Verify Accuracy**: Ensure the response is accurate and directly addresses the user's question or issue.\n\n# Output Format\n\nThe response should be a well-structured paragraph that fully addresses the user's query, incorporating metadata where applicable to provide a complete and informed answer. Use clear and professional language.\n\n# Notes\n\n- If the metadata contains sensitive information, ensure it is handled appropriately and is not disclosed unnecessarily in your response.\n- Aim to add value by leveraging the metadata, but do not rely on it exclusively if the user's query can be answered independently.\n- Keep responses concise but comprehensive, avoiding unnecessary jargon or overly technical explanations unless specifically requested.",
+                    type: "text",
+                },
+            ],
+        },
+        {
+            role: "assistant",
+            content: [
+                {
+                    text: "Hey there! I'm your AI assistant, here to help you create a project. Let's get started! 🚀\n\nCan you please describe the project you wish to create in detail?",
+                    type: "text",
+                },
+            ],
+        },
+    ]);
+
     const formik = useFormik({
         initialValues: {
             thumbnail: "",
@@ -48,11 +78,8 @@ export default function Create() {
             roles: [],
         },
         onSubmit: (values) => {
-            const request = id
-                ? axios.put(`/projects/${id}`, values)
-                : axios.post("/projects", values);
-
-            request
+            axios
+                .post("/projects", values)
                 .then(() => {
                     navigate("/projects");
                 })
@@ -60,6 +87,10 @@ export default function Create() {
                     formik.setErrors(error.response.data.errors);
                 });
         },
+    });
+
+    const filteredMessages = useMemo(() => {
+        return messages.filter((message) => message.role !== "system");
     });
 
     const fetchCompanies = useCallback(() => {
@@ -81,6 +112,60 @@ export default function Create() {
             });
         }, 100);
     }, [messagesRef]);
+
+    const handleSendMessage = useCallback(() => {
+        if (!message) {
+            return;
+        }
+
+        const currentMessages = [...messages];
+        const metaData = {
+            project: {
+                ...formik.values,
+            },
+        };
+        const newMessage = {
+            role: "user",
+            content: [
+                {
+                    text: `${message} \n \n # Metadata \n ${JSON.stringify(
+                        metaData
+                    )}`,
+                    type: "text",
+                },
+            ],
+        };
+
+        currentMessages.push(newMessage);
+
+        setAssistantLoading(true);
+        setMessages(currentMessages);
+        setMessage("");
+        handleScroll();
+
+        axios
+            .post("/openai", { messages: currentMessages })
+            .then((response) => {
+                const assistantMessage = {
+                    role: "assistant",
+                    content: [
+                        {
+                            text: response.data.message,
+                            type: "text",
+                        },
+                    ],
+                };
+
+                currentMessages.push(assistantMessage);
+                console.log(currentMessages);
+
+                setMessages(currentMessages);
+            })
+            .finally(() => {
+                setAssistantLoading(false);
+                handleScroll();
+            });
+    }, [message, messagesRef]);
 
     const handleThumbnailUpload = useCallback(
         (event) => {
@@ -158,23 +243,99 @@ export default function Create() {
             });
     }, [formik.values]);
 
-    const fetchSingleProject = useCallback(() => {
-        axios.get(`/projects/${id}`).then((response) => {
-            const project = response.data;
-
-            formik.setValues({ ...project });
-        });
-    }, [id]);
-
     useEffect(() => {
         fetchCompanies();
-
-        if (id) {
-            fetchSingleProject();
-        }
     }, [fetchCompanies]);
 
-    const additionalSettingsMarkup = (
+    // const aiChatboxMarkup = (
+    //     <Layout.Section variant="oneThird">
+    //         <LegacyCard
+    //             title={
+    //                 <LegacyStack spacing="extraTight" alignment="center">
+    //                     <Text variant="headingSm" as="h6" tone="magic">
+    //                         Generate with AI
+    //                     </Text>
+    //                     <Icon tone="magic" source={MagicIcon} />
+    //                 </LegacyStack>
+    //             }
+    //             sectioned
+    //         >
+    //             <div
+    //                 ref={messagesRef}
+    //                 style={{
+    //                     height: "300px",
+    //                     overflowY: "auto",
+    //                 }}
+    //             >
+    //                 {filteredMessages.map((message, index) => (
+    //                     <div
+    //                         key={index}
+    //                         style={{
+    //                             marginRight:
+    //                                 message.role === "assistant" ? "30px" : "0",
+    //                             marginLeft:
+    //                                 message.role === "user" ? "30px" : "0",
+
+    //                             marginBottom: "10px",
+    //                             display: "flex",
+    //                             justifyContent:
+    //                                 message.role === "assistant"
+    //                                     ? "flex-start"
+    //                                     : "flex-end",
+    //                         }}
+    //                     >
+    //                         {message.content.map((content, index) => {
+    //                             if (content.type === "text") {
+    //                                 return (
+    //                                     <Badge
+    //                                         key={index}
+    //                                         size="large"
+    //                                         tone={
+    //                                             message.role === "assistant"
+    //                                                 ? ""
+    //                                                 : "info"
+    //                                         }
+    //                                     >
+    //                                         {content.text}
+    //                                     </Badge>
+    //                                 );
+    //                             }
+    //                         })}
+    //                     </div>
+    //                 ))}
+    //             </div>
+    //             <div
+    //                 onKeyDown={(event) => {
+    //                     if (event.key === "Enter") {
+    //                         handleSendMessage();
+    //                     }
+    //                 }}
+    //             >
+    //                 <TextField
+    //                     labelHidden
+    //                     placeholder="Type your message here"
+    //                     suffix={
+    //                         <div style={{ marginTop: "5px" }}>
+    //                             {!assistantLoading ? (
+    //                                 <Button
+    //                                     icon={SendIcon}
+    //                                     variant="plain"
+    //                                     onClick={handleSendMessage}
+    //                                 />
+    //                             ) : (
+    //                                 <Spinner size="small" />
+    //                             )}
+    //                         </div>
+    //                     }
+    //                     value={message}
+    //                     onChange={(value) => setMessage(value)}
+    //                 />
+    //             </div>
+    //         </LegacyCard>
+    //     </Layout.Section>
+    // );
+
+    const aiChatboxMarkup2 = (
         <Layout.Section variant="oneThird">
             <LegacyCard title="Additional settings" sectioned>
                 {!id && (
@@ -342,7 +503,7 @@ export default function Create() {
             }}
             title={id ? "Project details" : "Create project"}
             primaryAction={{
-                content: "Save project",
+                content: "Save",
                 onAction: () => formik.handleSubmit(),
             }}
         >
@@ -474,7 +635,7 @@ export default function Create() {
                     </LegacyCard>
                 </Layout.Section>
 
-                {id ? jobListMarkup : additionalSettingsMarkup}
+                {id ? jobListMarkup : aiChatboxMarkup2}
             </Layout>
         </Page>
     );
