@@ -30,6 +30,7 @@ import {
     ChatIcon,
 } from "@shopify/polaris-icons";
 import { useState, useCallback, useRef } from "react";
+import Landing from "@/Pages/Landing";
 
 export default function FrameExample() {
     const navigate = useNavigate();
@@ -205,6 +206,11 @@ export default function FrameExample() {
                         icon: BankIcon,
                         onClick: () => navigate("/projects"),
                     },
+                    {
+                        label: "Landing",
+                        icon: BankIcon,
+                        onClick: () => navigate("/landing"),
+                    },
                 ]}
                 action={{
                     icon: ChatIcon,
@@ -229,6 +235,11 @@ export default function FrameExample() {
                 exact
                 path="/projects/create"
                 element={<UpdateOrCreateProject />}
+            />
+            <Route
+                exact
+                path="/landing"
+                element={<Landing/>}
             />
             <Route exact path="*" element={<NotFound />} />
         </Routes>
