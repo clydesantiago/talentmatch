@@ -16,6 +16,8 @@ import {
     ResourceItem,
     ResourceList,
     Avatar,
+    EmptyState,
+    Link,
 } from "@shopify/polaris";
 import { MagicIcon } from "@shopify/polaris-icons";
 import { useFormik } from "formik";
@@ -27,9 +29,9 @@ import { ImageIcon } from "@shopify/polaris-icons";
 export default function Create() {
     const { id } = useParams();
     const uploadInputRef = useRef(null);
-    const messagesRef = useRef(null);
     const navigate = useNavigate();
 
+    const [jobLists, setJobLists] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [assistantLoading, setAssistantLoading] = useState(null);
     const formik = useFormik({
@@ -65,22 +67,14 @@ export default function Create() {
     const fetchCompanies = useCallback(() => {
         axios.get("/companies").then((response) => {
             setCompanies(response.data);
-
-            const firstCompany = response.data[0];
-            formik.setFieldValue("company_id", firstCompany.id);
         });
     }, [formik.values.company_id]);
 
-    const handleScroll = useCallback(() => {
-        setTimeout(() => {
-            const htmlMessages = messagesRef.current;
-
-            htmlMessages.scrollTo({
-                top: htmlMessages.scrollHeight,
-                behavior: "smooth",
-            });
-        }, 100);
-    }, [messagesRef]);
+    const fetchJobLists = useCallback(() => {
+        axios.get(`/projects/${id}/jobs`).then((response) => {
+            setJobLists(response.data);
+        });
+    }, [id]);
 
     const handleThumbnailUpload = useCallback(
         (event) => {
@@ -168,11 +162,12 @@ export default function Create() {
 
     useEffect(() => {
         fetchCompanies();
+        fetchJobLists();
 
         if (id) {
             fetchSingleProject();
         }
-    }, [fetchCompanies]);
+    }, []);
 
     const additionalSettingsMarkup = (
         <Layout.Section variant="oneThird">
@@ -290,40 +285,46 @@ export default function Create() {
 
     const jobListMarkup = (
         <Layout.Section variant="oneThird">
-            <LegacyCard title="Job listings">
+            <LegacyCard title="Job listings" sectioned={!jobLists.length}>
                 <ResourceList
-                    resourceName={{ singular: "customer", plural: "customers" }}
-                    items={[
-                        {
-                            id: "100",
-                            url: "#",
-                            name: "Mae Jemison",
-                            location: "Decatur, USA",
-                        },
-                        {
-                            id: "200",
-                            url: "#",
-                            name: "Ellen Ochoa",
-                            location: "Los Angeles, USA",
-                        },
-                    ]}
+                    emptyState={
+                        <Box>
+                            <p>
+                                No job listings for this project yet.{" "}
+                                <Link
+                                    onClick={() =>
+                                        navigate(
+                                            `/jobs/create?project_id=${id}`
+                                        )
+                                    }
+                                >
+                                    Click here
+                                </Link>{" "}
+                                to create one.
+                            </p>
+                        </Box>
+                    }
+                    items={jobLists}
                     renderItem={(item) => {
-                        const { id, url, name, location } = item;
-                        const media = <Avatar customer size="md" name={name} />;
+                        const { id, url, title, location } = item;
+                        const media = (
+                            <Avatar customer size="md" name={title} />
+                        );
 
                         return (
                             <ResourceItem
                                 id={id}
                                 url={url}
                                 media={media}
-                                accessibilityLabel={`View details for ${name}`}
+                                accessibilityLabel={`View details for ${title}`}
+                                onClick={() => navigate(`/jobs/${id}`)}
                             >
                                 <Text
                                     variant="bodyMd"
                                     fontWeight="bold"
                                     as="h3"
                                 >
-                                    {name}
+                                    {title}
                                 </Text>
                                 <div>{location}</div>
                             </ResourceItem>
@@ -455,7 +456,7 @@ export default function Create() {
                                     onChange={(value) =>
                                         formik.setFieldValue(
                                             "company_id",
-                                            value
+                                            Number(value)
                                         )
                                     }
                                 />

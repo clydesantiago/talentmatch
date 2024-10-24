@@ -34,4 +34,14 @@ class Project extends Model
     {
         return $this->belongsTo(Company::class);
     }
+    
+    /**
+     * Get the jobs for the project.
+     *
+     * @return void
+     */
+    public function jobLists()
+    {
+        return $this->hasMany(JobList::class);
+    }
 }

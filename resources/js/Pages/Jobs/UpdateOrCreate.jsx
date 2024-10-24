@@ -26,9 +26,9 @@ import { ImageIcon } from "@shopify/polaris-icons";
 export default function Create() {
     const { id } = useParams();
     const uploadInputRef = useRef(null);
-    const messagesRef = useRef(null);
     const navigate = useNavigate();
 
+    const [jobs, setJobs] = useState([]);
     const [projects, setProjects] = useState([]);
     const [assistantLoading, setAssistantLoading] = useState(null);
     const formik = useFormik({
@@ -62,22 +62,8 @@ export default function Create() {
     const fetchProjects = useCallback(() => {
         axios.get("/projects").then((response) => {
             setProjects(response.data);
-
-            const firstProject = response.data[0];
-            formik.setFieldValue("project_id", firstProject.id);
         });
     }, [formik.values.project_id]);
-
-    const handleScroll = useCallback(() => {
-        setTimeout(() => {
-            const htmlMessages = messagesRef.current;
-
-            htmlMessages.scrollTo({
-                top: htmlMessages.scrollHeight,
-                behavior: "smooth",
-            });
-        }, 100);
-    }, [messagesRef]);
 
     const handleThumbnailUpload = useCallback(
         (event) => {

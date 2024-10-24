@@ -30,6 +30,7 @@ Route::get('/dashboard/{any?}', function () {
 
 
 Route::prefix('/api')->group(function () {
+    Route::get('/projects/{project}/jobs', [ProjectController::class, 'jobs']);
     Route::apiResource('/projects', ProjectController::class);
     Route::apiResource('/companies', CompanyController::class);
     Route::apiResource('/jobs', JobsController::class);
