@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -19,8 +19,9 @@ Route::get('/dashboard/{any?}', function () {
     return Inertia::render('Dashboard');
 })->where('any', '^(?!api).*$')->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/api/test', function () {
-    return response()->json(['message' => 'Hello World!']);
+
+Route::prefix('/api')->group(function () {
+    Route::apiResource('/projects', ProjectController::class);
 })->middleware('auth');
 
 require __DIR__.'/auth.php';

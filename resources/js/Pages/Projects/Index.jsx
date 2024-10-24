@@ -1,42 +1,22 @@
 import { Page, MediaCard, VideoThumbnail, InlineGrid } from "@shopify/polaris";
 import { useNavigate } from "react-router";
 import { EditIcon, ViewIcon } from "@shopify/polaris-icons";
+import { useCallback, useEffect, useState } from "react";
+import axios from "@/Plugins/axios";
 
 export default function ResourceListExample() {
     const navigate = useNavigate();
+    const [projects, setProjects] = useState([]);
 
-    const projects = [
-        {
-            id: 1,
-            title: "Rainbow",
-            shortDescription:
-                "A new way to shop for furniture. Const consequat veniam occaecat do.Non ais irure ut Lorem ad id.",
-        },
-        {
-            id: 2,
-            title: "Rainbow",
-            shortDescription:
-                "A new way to shop for furniture. Const consequat veniam occaecat do.Non ais irure ut Lorem ad id.",
-        },
-        {
-            id: 3,
-            title: "Rainbow",
-            shortDescription:
-                "A new way to shop for furniture. Const consequat veniam occaecat do.Non ais irure ut Lorem ad id.",
-        },
-        {
-            id: 4,
-            title: "Rainbow",
-            shortDescription:
-                "A new way to shop for furniture. Const consequat veniam occaecat do.Non ais irure ut Lorem ad id.",
-        },
-        {
-            id: 5,
-            title: "Rainbow",
-            shortDescription:
-                "A new way to shop for furniture. Const consequat veniam occaecat do.Non ais irure ut Lorem ad id.",
-        },
-    ];
+    const fetchProjects = useCallback(() => {
+        axios.get("/projects").then((response) => {
+            setProjects(response.data);
+        });
+    }, [setProjects]);
+
+    useEffect(() => {
+        fetchProjects();
+    }, [fetchProjects]);
 
     return (
         <Page
@@ -49,8 +29,9 @@ export default function ResourceListExample() {
             <InlineGrid gap="400" columns={3}>
                 {projects.map((project, index) => (
                     <MediaCard
+                        key={index}
                         portrait
-                        title={project.title}
+                        title={project.name}
                         primaryAction={{
                             content: "View",
                             icon: ViewIcon,
@@ -61,14 +42,13 @@ export default function ResourceListExample() {
                             icon: EditIcon,
                             onAction: () => {},
                         }}
-                        description={project.shortDescription}
+                        description={project.short_description}
                         popoverActions={[
                             { content: "Dismiss", onAction: () => {} },
                         ]}
                     >
                         <VideoThumbnail
-                            videoLength={80}
-                            thumbnailUrl="https://burst.shopifycdn.com/photos/business-woman-smiling-in-office.jpg?width=1850"
+                            thumbnailUrl={project.thumbnail}
                             onClick={() => console.log("clicked")}
                         />
                     </MediaCard>
