@@ -18,13 +18,14 @@ import {
     TopBar,
 } from "@shopify/polaris";
 import { Route, Routes, useNavigate } from "react-router-dom";
-import NotFound from "@/Pages/NotFound";
+import Dashboard from "@/Pages/Dashboard";
 import Projects from "@/Pages/Projects/Index";
 import UpdateOrCreateProject from "@/Pages/Projects/UpdateOrCreate";
 import Jobs from "@/Pages/Jobs/Index";
 import UpdateOrCreateJob from "@/Pages/Jobs/UpdateOrCreate";
 import Talents from "@/Pages/Talents/Index";
 import UpdateOrCreateTalent from "@/Pages/Talents/UpdateOrCreate";
+import NotFound from "@/Pages/NotFound";
 import {
     BankIcon,
     AppsIcon,
@@ -223,6 +224,7 @@ export default function FrameExample() {
 
     const actualPageMarkup = (
         <Routes>
+            <Route exact path="/" element={<Dashboard />} />
             <Route exact path="/projects" element={<Projects />} />
             <Route
                 exact

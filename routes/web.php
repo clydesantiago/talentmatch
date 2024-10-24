@@ -25,7 +25,7 @@ Route::get('/landing', function() {
 });
 
 Route::get('/dashboard/{any?}', function () {
-    return Inertia::render('Dashboard');
+    return Inertia::render('App');
 })->where('any', '^(?!api).*$')->middleware(['auth', 'verified'])->name('dashboard');
 
 
