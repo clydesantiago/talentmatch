@@ -28,6 +28,7 @@ class ProjectController extends Controller
             'end_date' => 'required',
             'company_id' => 'required',
             'budget' => 'required',
+            'roles' => 'required_if:generate_job_listings,true',
         ]);
         $project = Project::create($validated);
 
