@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('job_list', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('project_id')
+                ->constrained()
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->string('job_title');
             $table->string('job_role');
             $table->string('job_description')->nullable();
