@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\UploadController;
+use App\Http\Controllers\OpenAIController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -27,6 +28,7 @@ Route::prefix('/api')->group(function () {
     Route::apiResource('/companies', CompanyController::class);
 
     Route::post('/upload', UploadController::class);
+    Route::post('/openai', OpenAIController::class);
 })->middleware('auth');
 
 require __DIR__.'/auth.php';

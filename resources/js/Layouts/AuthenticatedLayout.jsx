@@ -20,7 +20,7 @@ import {
 import { Route, Routes, BrowserRouter, useNavigate } from "react-router-dom";
 import NotFound from "@/Pages/NotFound";
 import Projects from "@/Pages/Projects/Index";
-import CreateProject from "@/Pages/Projects/Create";
+import UpdateOrCreateProject from "@/Pages/Projects/UpdateOrCreate";
 import {
     BankIcon,
     AppsIcon,
@@ -220,7 +220,16 @@ export default function FrameExample() {
     const actualPageMarkup = (
         <Routes>
             <Route exact path="/projects" element={<Projects />} />
-            <Route exact path="/projects/create" element={<CreateProject />} />
+            <Route
+                exact
+                path="/projects/:id"
+                element={<UpdateOrCreateProject />}
+            />
+            <Route
+                exact
+                path="/projects/create"
+                element={<UpdateOrCreateProject />}
+            />
             <Route exact path="*" element={<NotFound />} />
         </Routes>
     );
