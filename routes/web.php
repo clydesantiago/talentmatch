@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\UploadController;
+use App\Http\Controllers\JobsController;
 use App\Http\Controllers\OpenAIController;
 use App\Http\Controllers\RunAssistantController;
 use Illuminate\Foundation\Application;
@@ -27,7 +28,7 @@ Route::get('/dashboard/{any?}', function () {
 Route::prefix('/api')->group(function () {
     Route::apiResource('/projects', ProjectController::class);
     Route::apiResource('/companies', CompanyController::class);
-
+    Route::apiResource('/jobs', JobsController::class)->except(['destroy']);
     Route::post('/upload', UploadController::class);
     Route::post('/openai', OpenAIController::class);
     Route::post('/run-assistant', RunAssistantController::class);
