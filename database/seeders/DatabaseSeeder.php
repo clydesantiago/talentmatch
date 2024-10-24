@@ -8,6 +8,7 @@ use Illuminate\Database\Seeder;
 use App\Models\Project;
 use App\Models\Company;
 use App\Models\Joblist;
+use App\Models\Talent;
 
 class DatabaseSeeder extends Seeder
 {
@@ -25,6 +26,10 @@ class DatabaseSeeder extends Seeder
             ->create();
         
         Joblist::factory()
+            ->count(10)
+            ->create();
+
+        Talent::factory()
             ->count(10)
             ->create();
     }

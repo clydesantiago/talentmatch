@@ -5,6 +5,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\JobsController;
 use App\Http\Controllers\OpenAIController;
+use App\Http\Controllers\TalentController;
 use App\Http\Controllers\RunAssistantController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,7 @@ Route::prefix('/api')->group(function () {
     Route::apiResource('/projects', ProjectController::class);
     Route::apiResource('/companies', CompanyController::class);
     Route::apiResource('/jobs', JobsController::class);
+    Route::apiResource('/talents', TalentController::class);
 
     Route::post('/upload', UploadController::class);
     Route::post('/openai', OpenAIController::class);
