@@ -300,9 +300,11 @@ export default function FrameExample() {
     );
 
     const logo = {
-        width: 86,
-        topBarSource: "https://laravel.com/img/logotype.min.svg",
-        contextualSaveBarSource: "https://laravel.com/img/logotype.min.svg",
+        width: 200,
+        topBarSource:
+            "https://admin.assets.codexapps.co/uploads/codexapps/remote-dev-logo-2-1729794062.png",
+        contextualSaveBarSource:
+            "https://admin.assets.codexapps.co/uploads/codexapps/remote-dev-logo-2-1729794062.png",
         accessibilityLabel: "Shopify",
     };
 
