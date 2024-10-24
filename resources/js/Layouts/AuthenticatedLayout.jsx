@@ -23,6 +23,8 @@ import Projects from "@/Pages/Projects/Index";
 import UpdateOrCreateProject from "@/Pages/Projects/UpdateOrCreate";
 import Jobs from "@/Pages/Jobs/Index";
 import UpdateOrCreateJob from "@/Pages/Jobs/UpdateOrCreate";
+import Talents from "@/Pages/Talents/Index";
+import UpdateOrCreateTalent from "@/Pages/Talents/UpdateOrCreate";
 import {
     BankIcon,
     AppsIcon,
@@ -200,17 +202,12 @@ export default function FrameExample() {
                     {
                         label: "Talents",
                         icon: PersonIcon,
-                        onClick: () => navigate("/projects"),
+                        onClick: () => navigate("/talents"),
                     },
                     {
                         label: "Companies",
                         icon: BankIcon,
                         onClick: () => navigate("/projects"),
-                    },
-                    {
-                        label: "Landing",
-                        icon: BankIcon,
-                        onClick: () => navigate("/landing"),
                     },
                 ]}
                 action={{
@@ -240,6 +237,17 @@ export default function FrameExample() {
             <Route exact path="/jobs" element={<Jobs />} />
             <Route exact path="/jobs/create" element={<UpdateOrCreateJob />} />
             <Route exact path="/jobs/:id" element={<UpdateOrCreateJob />} />
+            <Route exact path="/talents" element={<Talents />} />
+            <Route
+                exact
+                path="/talents/create"
+                element={<UpdateOrCreateTalent />}
+            />
+            <Route
+                exact
+                path="/talents/:id"
+                element={<UpdateOrCreateTalent />}
+            />
             <Route exact path="*" element={<NotFound />} />
         </Routes>
     );
