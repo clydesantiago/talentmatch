@@ -33,6 +33,7 @@ Route::prefix('/api')->group(function () {
     Route::get('/projects/{project}/jobs', [ProjectController::class, 'jobs']);
     Route::apiResource('/projects', ProjectController::class);
     Route::apiResource('/companies', CompanyController::class);
+    Route::post('/job-lists/find-talents', [JobsController::class, 'findTalents']);
     Route::apiResource('/job-lists', JobsController::class);
     Route::post('/talents/extract-from-resume', [TalentController::class, 'extractFromResume']);
     Route::apiResource('/talents', TalentController::class);

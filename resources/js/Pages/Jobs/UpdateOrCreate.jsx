@@ -15,6 +15,9 @@ import {
     ResourceItem,
     ResourceList,
     Avatar,
+    EmptyState,
+    Modal,
+    Badge,
 } from "@shopify/polaris";
 import { MagicIcon } from "@shopify/polaris-icons";
 import { useFormik } from "formik";
@@ -25,11 +28,17 @@ import { ImageIcon } from "@shopify/polaris-icons";
 
 export default function Create() {
     const { id } = useParams();
+
     const uploadInputRef = useRef(null);
     const navigate = useNavigate();
 
+    const [findingTalents, setFindingTalents] = useState(false);
+    const [suggestedTalents, setSuggestedTalents] = useState([]);
+    const [matchingTalentModalOpen, setMatchingTalentModalOpen] =
+        useState(false);
     const [projects, setProjects] = useState([]);
     const [assistantLoading, setAssistantLoading] = useState(null);
+
     const formik = useFormik({
         initialValues: {
             thumbnail: "",
@@ -149,6 +158,24 @@ export default function Create() {
     }, [id]);
 
     useEffect(() => {
+        if (matchingTalentModalOpen) {
+            setFindingTalents(true);
+            setSuggestedTalents([]);
+
+            axios
+                .post("/job-lists/find-talents", {
+                    job_id: id,
+                })
+                .then((response) => {
+                    setSuggestedTalents(response.data);
+                })
+                .finally(() => {
+                    setFindingTalents(false);
+                });
+        }
+    }, [matchingTalentModalOpen]);
+
+    useEffect(() => {
         fetchProjects();
 
         if (id) {
@@ -171,6 +198,7 @@ export default function Create() {
                 actions={[
                     {
                         content: "Find talents",
+                        onAction: () => setMatchingTalentModalOpen(true),
                     },
                 ]}
             >
@@ -453,6 +481,77 @@ export default function Create() {
 
                 {id ? jobListMarkup : additionalSettingsMarkup}
             </Layout>
+
+            <Modal
+                open={matchingTalentModalOpen}
+                title="Find talents"
+                onClose={() => setMatchingTalentModalOpen(false)}
+            >
+                {findingTalents ? (
+                    <EmptyState
+                        heading="We're finding the best talents for you"
+                        image="https://admin.assets.codexapps.co/uploads/codexapps/66e421674d926402130953-1726226822.gif"
+                    >
+                        <p>
+                            We are currently finding the best talents for you
+                            based on the job description you provided. This may
+                            take a while.
+                        </p>
+                    </EmptyState>
+                ) : (
+                    <ResourceList
+                        emptyState={
+                            <EmptyState
+                                heading="No talents found"
+                                image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+                            >
+                                <p>
+                                    We couldn't find any talents that match the
+                                    job description you provided.
+                                </p>
+                            </EmptyState>
+                        }
+                        items={suggestedTalents}
+                        renderItem={(item) => {
+                            const media = (
+                                <Avatar customer size="md" name={item.name} />
+                            );
+
+                            return (
+                                <ResourceItem
+                                    id={item.id}
+                                    media={media}
+                                    shortcutActions={[
+                                        {
+                                            content: "View profile",
+                                            onAction: () =>
+                                                window.open(
+                                                    `/dashboard/talents/${item.id}`,
+                                                    "_blank"
+                                                ),
+                                        },
+                                    ]}
+                                    persistActions
+                                >
+                                    <LegacyStack spacing="tight">
+                                        <Text
+                                            variant="bodyMd"
+                                            fontWeight="bold"
+                                            as="h3"
+                                        >
+                                            {item.name}
+                                        </Text>
+                                        <Badge tone="success">
+                                            {item.match_percentage}% match
+                                        </Badge>
+                                    </LegacyStack>
+                                    <div>{item.summary}</div>
+                                </ResourceItem>
+                            );
+                        }}
+                    />
+                )}
+            </Modal>
         </Page>
     );
 }
