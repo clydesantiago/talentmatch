@@ -13,7 +13,6 @@ export default function Apply() {
 
   const formik = useFormik({
       initialValues: {
-          thumbnail: "",
           name: "",
           job_title: "",
           email: "",
@@ -27,21 +26,27 @@ export default function Apply() {
           skills: [],
       },
       onSubmit: (values) => {
-          console.log('submeet');
+          axios.post("/talents", values);
+          console.log('submitted');
       },
   });
 
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Enter') {
-      console.log('trigger');
       setSkills([...skills, e.target.value]);
+      e.target.value = '';
     }
   }, [skills, setSkills]);
 
   useEffect(() => {
-    console.log('TRACK SKILLS');
-    console.log(skills);
+    formik.setFieldValue("skills", [...skills]);
   }, [skills]);
+
+
+//   useEffect(() => {
+//     console.log('[TRACK] formik values');
+//     console.log(formik.values);
+//   }, [formik]);
 
   const NavigationMarkup = () => {
     return (
@@ -93,7 +98,25 @@ export default function Apply() {
   return (
     <>
         <NavigationMarkup/>
-        <div class="flex justify-center">
+
+        <div class="flex flex-wrap justify-center">
+            <div class="py-2 m-3">
+            <span class="overflow-hidden pr-7 text-3lg font-semibold sm:text-xl">Full Stack Developer</span>
+                <div style={{
+                    width: '500px',
+                    marginTop: '30px',
+                    fontSize: '14px',
+                }}>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer rutrum non nisi in dapibus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed eget fringilla velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aliquam sed ligula ligula. Nulla in ex nisl. Nam sit amet dolor tincidunt, dignissim nibh vel, lobortis sem. Ut laoreet tortor leo, ac suscipit elit tincidunt dapibus. Ut ultricies felis vitae sapien molestie, vel sodales magna iaculis.
+
+                Praesent molestie massa hendrerit tellus eleifend sollicitudin. Suspendisse potenti. Nullam vestibulum est quis egestas hendrerit. Ut posuere, nibh sit amet fringilla interdum, ligula elit cursus massa, id tempor erat ligula quis eros. Suspendisse non enim at augue venenatis malesuada. Vivamus rhoncus, dolor ut posuere vehicula, mauris sem cursus felis, eu ornare nisl nibh in felis. Donec vel ornare eros, eget posuere nibh. Curabitur convallis venenatis ligula, at consectetur lorem auctor id. Quisque vitae semper nisi.
+
+                 - id. Quisque vitae semper nisi
+                 - 
+                </div>
+            </div>
+            <div>
+            <div class="flex ">
             <div class="font-[sans-serif] max-w-md mt-10">
                 <label class="text-base text-gray-500 font-semibold mb-2 block">Upload your CV</label>
                 <input type="file"
@@ -101,15 +124,21 @@ export default function Apply() {
                 <p class="text-xs text-gray-400 mt-2">PDF Format.</p>
             </div>
         </div>
-        <div class="h-screen flex justify-center">
-        <form class="w-full max-w-lg">
+        <div class="h-screen flex">
+        <form class="w-full max-w-lg" style={{marginBottom: '20px'}}>
             <div class="flex flex-wrap -mx-3 mb-6">
                 <div class="w-full md px-3 mb-6 md:mb-0">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
                     Name
                 </label>
-                <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="Jane"/>
-                <p class="text-red-500 text-xs italic">Please fill out this field.</p>
+                <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="Jane Doe"
+                onChange={(e) => {
+                    formik.setFieldValue(
+                        "name",
+                        e.target.value
+                    );
+                }}
+                />
                 </div>
             </div>
             <div class="flex flex-wrap -mx-3 mb-6">
@@ -117,8 +146,15 @@ export default function Apply() {
                     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
                         Job title
                     </label>
-                    <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="Jane"/>
-                    <p class="text-red-500 text-xs italic">Please fill out this field.</p>
+                    <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="eg. Software Developer" 
+                    onChange={(e) => {
+                        formik.setFieldValue(
+                            "job_title",
+                            e.target.value
+                        );
+                    }}
+                    />
+                    
                 </div>
             </div>
             <div class="flex flex-wrap -mx-3 mb-2">
@@ -126,35 +162,70 @@ export default function Apply() {
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-city">
                     email
                 </label>
-                <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="sample@email.com"/>
-                    <p class="text-red-500 text-xs italic">Please fill out this field.</p>
+                <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="sample@email.com"
+                onChange={(e) => {
+                    formik.setFieldValue(
+                        "email",
+                        e.target.value
+                    );
+                }}
+                />
+                    
                 </div>
                 <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
                     Phone
                 </label>
-                <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="+639"/>
-                    <p class="text-red-500 text-xs italic">Please fill out this field.</p>
+                <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="+639"
+                onChange={(e) => {
+                    formik.setFieldValue(
+                        "phone",
+                        e.target.value
+                    );
+                }}
+                />
+                    
                 </div>
             </div>
             <div class="flex flex-wrap -mx-3 mb-2">
                 <label for="message" class="block mb-2 text-sm font-medium text-gray-700">Summary</label>
-                <textarea id="message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write your thoughts here..."></textarea>
+                <textarea id="message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Give your best pitch..."
+                onChange={(e) => {
+                    formik.setFieldValue(
+                        "summary",
+                        e.target.value
+                    );
+                }}
+                ></textarea>
             </div>
             <div class="flex flex-wrap -mx-3 mb-2">
                 <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-city">
                     Monthly Salary
                 </label>
-                <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="PHP"/>
-                    <p class="text-red-500 text-xs italic">Please fill out this field.</p>
+                <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="PHP"
+                onChange={(e) => {
+                    formik.setFieldValue(
+                        "monthly_salary",
+                        e.target.value
+                    );
+                }}
+                />
+                    
                 </div>
                 <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
                     Years of Experience
                 </label>
-                <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="eg. 25"/>
-                    <p class="text-red-500 text-xs italic">Please fill out this field.</p>
+                <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="eg. 25"
+                onChange={(e) => {
+                    formik.setFieldValue(
+                        "years_of_experience",
+                        e.target.value
+                    );
+                }}
+                />
+                    
                 </div>
             </div>
             <div class="flex flex-wrap -mx-3 mb-6">
@@ -162,12 +233,11 @@ export default function Apply() {
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
                     Skills
                 </label>
-                <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="eg. PHP, NodeJS, Laravel" onKeyDown={handleKeyDown}/>
-                <p class="text-red-500 text-xs italic">Please fill out this field.</p>
+                <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="eg. PHP, NodeJS, Laravel" onKeyDown={handleKeyDown}/>
                 </div>
             </div>
             <div class="flex flex-wrap -mx-3 mb-6">
-                <div class="w-full md px-3 mb-6 md:mb-0">
+                <div class="w-full md px-3 mb-6 md:mb-0" style={{width: '410px'}}>
                     {skills && skills.map(skill => (
                         <span style={{
                             border: "1px solid gray",
@@ -175,13 +245,25 @@ export default function Apply() {
                             padding: "3px 15px 3px 15px",
                             marginLeft: "3px",
                             marginRight: "3px",
+                            marginTop: "3px",
+                            marginBottom: "3px",
                         }}>{skill}</span>
                     ))}
                 </div>
             </div>
+            <button class="border border-gray-700 p-2 rounded" style={{marginBottom: "40px"}} onClick={(e) => {
+                e.preventDefault();
+                formik.handleSubmit()
+            }}>
+            <svg style={{display: "inline"}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
+  <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+</svg> Submit Application
+            </button>
             </form>
         </div>
-        
+
+            </div>
+        </div>        
     </>
   );
 }

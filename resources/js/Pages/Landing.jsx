@@ -9,7 +9,7 @@ export default function Landing() {
   const [jobLists, setJobLists] = useState([]);
 
   const fetchJobList = useCallback(() => {
-    axios.get("api/jobs").then((response) => {
+    axios.get("api/job-lists").then((response) => {
       setJobLists(response.data);
     });
   }, []);
@@ -20,8 +20,6 @@ export default function Landing() {
 
 
   const CardMarkUp = (job) => {
-    console.log('cardmarkup data');
-    console.log(job);
 
     return (
       <div class="m-5">
